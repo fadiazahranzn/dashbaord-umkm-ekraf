@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UMKM Siap AI | Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f1f0f8;--card:#fff;--side:#fff;--ink:#1d1b3a;--mute:#7c799b;--line:#ebe9f7;--pri:#6d5dd3;--pri2:#a99cf0;--pink:#e8489a;--pinksoft:#fde6f1;--soft:#f3f1ff;--shadow:0 2px 14px rgba(70,60,140,.07)}
+[data-theme=dark]{--bg:#15132a;--card:#211e3d;--side:#1b1935;--ink:#f1efff;--mute:#9c99c2;--line:#322e58;--soft:#2a2650;--pinksoft:#3a2142;--shadow:none}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Poppins',system-ui,sans-serif;font-size:14px;background:var(--bg);color:var(--ink);line-height:1.55;transition:background .25s,color .25s}
+.app{--sw:236px;display:grid;grid-template-columns:var(--sw) 1fr;min-height:100vh;transition:grid-template-columns .25s ease}
+.app.collapsed{--sw:78px}
+.brandrow{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;padding-bottom:22px}
+.brandrow .brand{padding:0 4px 0 10px;white-space:nowrap;font-size:18px}
+.brand .mini{display:none}
+.sbtoggle{flex:none;width:30px;height:30px;border:0;border-radius:9px;background:var(--soft);color:var(--mute);cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:-2px}
+.sbtoggle:hover{background:var(--pinksoft);color:var(--pink)}
+.sbtoggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s}
+.collapsed .sbtoggle svg{transform:rotate(180deg)}
+.collapsed .side{padding-left:14px;padding-right:14px;overflow:hidden}
+.collapsed .brandrow{flex-direction:column;align-items:center;gap:12px}
+.collapsed .brandrow .brand{padding:0}
+.collapsed .brand .full{display:none}
+.collapsed .brand .mini{display:inline;font-size:17px}
+.collapsed nav button{font-size:0;gap:0;justify-content:center;padding:12px 0}
+.collapsed nav button svg{width:20px;height:20px}
+.collapsed nav button.on::after{right:-14px}
+.collapsed .next{display:none}
+.collapsed .theme{justify-content:center}
+.collapsed .theme span{display:none}
+.side{background:var(--side);padding:26px 18px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;border-right:1px solid var(--line)}
+.brand{font:700 20px 'Poppins',sans-serif;color:var(--pink);padding:0 10px 22px;letter-spacing:-.01em}
+.brand b{color:var(--pri)}
+nav{display:flex;flex-direction:column;gap:4px}
+nav button{display:flex;align-items:center;gap:12px;border:0;background:none;color:var(--mute);padding:11px 12px;border-radius:10px;font:500 13.5px 'Poppins',sans-serif;text-align:left;cursor:pointer;position:relative}
+nav button svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button span{display:none}
+nav button:hover{background:var(--soft);color:var(--ink)}
+nav button.on{background:var(--pinksoft);color:var(--pink);font-weight:600}
+nav button.on::after{content:"";position:absolute;right:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--pink)}
+.sidefoot{margin-top:auto;display:flex;flex-direction:column;gap:16px}
+.next{background:linear-gradient(135deg,#6d5dd3,#8a6be0);color:#fff;border-radius:14px;padding:16px}
+.next small{display:block;font-size:11px;opacity:.8}
+.next b{display:block;font:700 30px/1.15 'Poppins',sans-serif;margin:4px 0 2px}
+.next span{font-size:11px;opacity:.85}
+.theme{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mute);cursor:pointer;user-select:none}
+.theme input{display:none}
+.theme i{width:34px;height:20px;border-radius:20px;background:var(--pri2);position:relative;flex:none;transition:.2s}
+.theme i::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.2s}
+.theme input:checked+i{background:var(--pri)}
+.theme input:checked+i::after{left:17px}
+.content{min-width:0}
+header{padding:28px 32px 4px}
+header .tag{display:inline-block;font:600 11px 'Poppins',sans-serif;color:var(--pink);background:var(--pinksoft);padding:4px 12px;border-radius:99px;margin-bottom:10px}
+header h1{margin:0 0 6px;font:700 clamp(22px,2.6vw,30px)/1.2 'Poppins',sans-serif;letter-spacing:-.015em}
+header p:empty{display:none}
+header p{margin:0;color:var(--mute);max-width:700px;font-size:13.5px}
+main{padding:18px 32px 36px}
+section{display:none}section.on{display:block;animation:f .25s}
+@keyframes f{from{opacity:0;transform:translateY(5px)}to{opacity:1}}
+.grid{display:grid;gap:18px}
+.k4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.k2{grid-template-columns:repeat(auto-fit,minmax(420px,1fr))}
+.card{background:var(--card);border-radius:18px;padding:20px;box-shadow:var(--shadow)}
+.kpi .l{font-size:12.5px;color:var(--mute);font-weight:500;order:-1}
+.kpi{display:flex;flex-direction:column}
+.kpi .n{font:700 30px/1.2 'Poppins',sans-serif;color:var(--ink);margin:4px 0}
+.kpi:nth-child(odd) .n{color:var(--pri)}
+.kpi:nth-child(even) .n{color:var(--pink)}
+.kpi .s{font-size:11.5px;color:var(--mute);line-height:1.45}
+h2{font:700 17px 'Poppins',sans-serif;margin:30px 0 14px}
+h3{margin:0 0 4px;font:600 15px/1.35 'Poppins',sans-serif}
+.sub{color:var(--mute);font-size:12px;margin:0 0 12px}
+.chart{position:relative;height:280px}
+.ins .num{display:inline-flex;width:28px;height:28px;border-radius:8px;background:var(--pinksoft);color:var(--pink);font:700 12px 'Poppins',sans-serif;align-items:center;justify-content:center;margin-right:10px;vertical-align:middle}
+.rec{background:var(--soft)}
+.src{font-size:12px;color:var(--mute)}
+.src a{color:var(--pri)}
+.q{margin-bottom:20px}
+.q p{font-weight:600;margin:0 0 8px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts label{border:1.5px solid var(--line);border-radius:99px;padding:7px 15px;cursor:pointer;font-size:13px;background:var(--card);transition:.15s}
+.opts label:hover{border-color:var(--pri2)}
+.opts input{display:none}
+.opts label:has(input:checked){background:var(--pri);border-color:var(--pri);color:#fff}
+.btn{background:var(--pri);color:#fff;border:0;padding:11px 24px;border-radius:12px;font:600 13.5px 'Poppins',sans-serif;cursor:pointer;transition:.15s}
+.btn:hover{background:var(--pink)}
+.btn.ghost{background:var(--soft);color:var(--pri)}
+.btn.ghost:hover{background:var(--pri);color:#fff}
+.result{display:none}
+.meter{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0}
+.meter div{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--pri),var(--pink));transition:width .8s}
+.badge{display:inline-block;padding:3px 12px;border-radius:99px;font-weight:600;font-size:12px;background:color-mix(in srgb,currentColor 14%,transparent)}
+select,input[type=number]{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;font:13.5px 'Poppins',sans-serif;background:var(--card);color:var(--ink)}
+.tool{background:var(--card);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.tool .t{font:600 15px 'Poppins',sans-serif}
+.tool .u{font:600 11px 'Poppins',sans-serif;color:var(--pink);background:var(--pinksoft);display:inline-block;padding:2px 10px;border-radius:99px;margin-bottom:6px}
+.tool ol{margin:8px 0 0;padding-left:18px;font-size:13px}
+.big{font:700 44px/1.15 'Poppins',sans-serif;background:linear-gradient(90deg,var(--pri),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.row{display:flex;gap:14px;flex-wrap:wrap}.row>*{flex:1;min-width:160px}
+footer{padding:20px 32px;font-size:12px;color:var(--mute);border-top:1px solid var(--line)}
+footer ol{padding-left:18px}
+.q-main{background:linear-gradient(135deg,#6d5dd3,#9a62e0 60%,#e8489a);color:#fff;margin-bottom:4px}
+.q-main .sub{color:rgba(255,255,255,.8)}
+.q-main h3{font-size:clamp(17px,2vw,21px)}
+.answer{font-size:13px;font-weight:500;margin:12px 0 0;padding:10px 14px;background:var(--soft);border-radius:12px}
+.seg{display:inline-flex;background:var(--soft);border-radius:12px;padding:3px}
+.seg button{border:0;background:none;padding:8px 14px;border-radius:9px;font:500 12.5px 'Poppins',sans-serif;cursor:pointer;color:var(--mute)}
+.seg button.on{background:var(--pri);color:#fff}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.quad>div{background:var(--soft);border-radius:14px;padding:14px;font-size:12.5px}
+.quad b{display:block;font:600 14px 'Poppins',sans-serif;margin-bottom:4px}
+.quad span{display:inline-block;background:var(--card);border-radius:8px;padding:2px 8px;margin:2px 2px 2px 0;font-size:11.5px}
+.pf{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pf div{background:var(--soft);border-radius:12px;padding:12px}.pf .v{font:700 20px 'Poppins',sans-serif;color:var(--pri)}
+header.top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+header.top .tl{min-width:0;flex:1 1 520px}
+.gr1,.gr2{background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.gr1{background-image:linear-gradient(90deg,#6d5dd3,#8a6be0)}
+.gr2{background-image:linear-gradient(90deg,#e8489a,#f5a85b)}
+footer a{color:var(--pri)}
+.fbar{display:flex;flex-wrap:wrap;gap:16px 26px;align-items:flex-end;margin-top:16px;padding:16px 20px}
+.fbar .fg{display:grid;gap:6px;min-width:0}
+.fbar .fg>label{font:600 11px 'Poppins',sans-serif;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.fbar .fg>label b{color:var(--pri);text-transform:none;letter-spacing:0}
+.fbar select{min-width:150px}
+.fbar .fend{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13px;color:var(--mute)}
+.fbar .fend b{color:var(--ink);font:700 18px 'Poppins',sans-serif}
+.chips.sm{gap:6px}
+.chips.sm .chip{padding:6px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px}
+.chips.sm .chip i{width:9px;height:9px;border-radius:50%}
+.chips.sm .chip:not(.on){opacity:.55}
+.chips.sm .chip.on{background:var(--soft);color:var(--ink);border-color:var(--pri)}
+.dual{display:flex;gap:8px;align-items:center;width:200px}
+.dual input{flex:1;min-width:0;accent-color:var(--pri)}
+.mapbox path.dim{opacity:.13;pointer-events:none}
+.legend.ramp{display:block}
+.rl{max-width:420px}
+.rl b{font:600 13px 'Poppins',sans-serif}
+.rbar{height:10px;border-radius:9px;margin:8px 0 4px;background:linear-gradient(90deg,#e3defb,#4a38b5)}
+.rend{display:flex;justify-content:space-between;font-size:12px;color:var(--mute)}
+.rl small{display:block;margin-top:6px;font-size:11px;color:var(--mute)}
+.prow{display:flex;justify-content:space-between;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.pcount{font-size:13px;color:var(--mute)}.pcount b{font:700 22px 'Poppins',sans-serif;color:var(--pri)}
+.pbar{height:8px;border-radius:9px;background:var(--soft);margin:12px 0 18px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#6d5dd3,#e8489a);transition:width .4s}
+.weeks{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.wk{border:1.5px solid var(--line);border-top:4px solid var(--c);border-radius:14px;padding:14px;background:var(--card);display:flex;flex-direction:column;gap:4px;transition:.15s}
+.wk.now{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 20%,transparent)}
+.wk.fin{background:color-mix(in srgb,var(--c) 8%,var(--card))}
+.wk .wh{display:flex;justify-content:space-between;align-items:center;font:600 11px 'Poppins',sans-serif;color:var(--c);text-transform:uppercase;letter-spacing:.06em}
+.wk .wh em{font-style:normal;text-transform:none;letter-spacing:0;background:color-mix(in srgb,var(--c) 15%,transparent);border-radius:99px;padding:2px 9px}
+.wk .wt{font:600 15px/1.3 'Poppins',sans-serif;margin-top:4px}
+.wk .wl{font-size:12px;color:var(--mute)}
+.wk .bt3{align-self:flex-start;margin:6px 0 4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c)}
+.wk ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}
+.wk label{display:flex;gap:9px;align-items:flex-start;font-size:13px;cursor:pointer}
+.wk input{accent-color:var(--c);width:17px;height:17px;margin:1px 0 0;flex:none;cursor:pointer}
+.wk input:checked+span{color:var(--mute);text-decoration:line-through}
+.wdone{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:16px;padding:14px 18px;border-radius:12px;background:var(--soft)}
+.wdone[hidden]{display:none}
+.wdone b{font-weight:600}
+@media(max-width:1180px){.weeks{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.weeks{grid-template-columns:1fr}}
+.fsrc summary{cursor:pointer;font:600 13px 'Poppins',sans-serif;color:var(--ink);list-style:none;display:flex;align-items:center;gap:8px}
+.fsrc summary::-webkit-details-marker{display:none}
+.fsrc summary::before{content:'';width:7px;height:7px;border-right:2px solid var(--pri);border-bottom:2px solid var(--pri);transform:rotate(-45deg);transition:.15s;margin-right:2px}
+.fsrc[open] summary::before{transform:rotate(45deg)}
+.stepl{display:flex;align-items:center;gap:10px;font:600 15px 'Poppins',sans-serif;margin-bottom:12px}
+.stepl i{width:26px;height:26px;border-radius:50%;background:var(--pri);color:#fff;font:700 12px 'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;font-style:normal}
+.jobs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.job{text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:14px;cursor:pointer;font-family:inherit;display:grid;gap:4px;border-top:4px solid var(--c);transition:.15s}
+.job span{font:600 13px/1.3 'Poppins',sans-serif}
+.job small{font-size:11px;color:var(--mute)}
+.job:hover{border-color:var(--c)}
+.job.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 10%,var(--card));box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 20%,transparent)}
+.play{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:26px 28px;border-left:6px solid var(--c)}
+.play .pk{font:600 11px 'Poppins',sans-serif;color:var(--c);text-transform:uppercase;letter-spacing:.08em}
+.play h3{font-size:20px;margin:4px 0 0;line-height:1.35}
+.play .ph{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.bt2{font-size:12px;padding:5px 12px;border-radius:99px;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c)}
+.pmeta{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+.pmeta span{font-size:12px;color:var(--mute);border:1px solid var(--line);border-radius:99px;padding:3px 12px}
+.pst{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:0;position:relative}
+.pst li{display:flex;gap:14px;align-items:flex-start;padding:0 0 18px;position:relative;font-size:14px}
+.pst li:not(:last-child)::before{content:"";position:absolute;left:15px;top:32px;bottom:2px;width:2px;background:var(--line)}
+.pst li i{flex:none;width:32px;height:32px;border-radius:50%;background:var(--c);color:#fff;font:700 13px 'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;font-style:normal}
+.pst li div{padding-top:5px}
+.pfoot{display:flex;align-items:center;gap:18px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px}
+.pfoot p{margin:0;font-size:11.5px;color:var(--mute);flex:1;min-width:220px}
+.pbtn{background:var(--c);color:#fff;border:0;border-radius:99px;padding:11px 20px;font:600 13px 'Poppins',sans-serif;cursor:pointer}
+@media(max-width:860px){.jobs{grid-template-columns:1fr 1fr}}
+.kb{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr;gap:10px;margin-top:18px;align-items:stretch}
+.kh{font:600 12px 'Poppins',sans-serif;color:var(--mute);padding:0 4px}
+.kr{display:contents}
+.kr>div{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;transition:.15s}
+.kr .kt{border-left:4px solid var(--c);display:grid;gap:3px;align-content:start}
+.kr .kt small{font-size:11px;color:var(--mute)}
+.kr .kt b{font:600 13px/1.35 'Poppins',sans-serif}
+.kr .kt .bt{margin:6px 0 0;padding:3px 10px;border-radius:99px;font-size:11px;justify-self:start;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);font-weight:600}
+.kr .kc{display:flex;gap:9px;align-items:flex-start}
+.kr .kc i{flex:none;width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c);font:700 11px 'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;font-style:normal}
+.kr.dim>div{opacity:.3}
+@media(max-width:860px){.kb{grid-template-columns:1fr}.kh{display:none}.kr{display:grid;gap:8px;margin-bottom:10px}}
+.bcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
+.bcard{text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:14px 16px;cursor:pointer;font-family:inherit;transition:.15s;display:grid;gap:4px}
+.bcard b{font:700 26px/1 'Poppins',sans-serif;color:var(--c)}
+.bcard span{font-size:13px;color:var(--mute)}
+.bcard i{display:block;height:6px;border-radius:9px;background:var(--soft);margin-top:6px;overflow:hidden}
+.bcard em{display:block;height:100%;background:var(--c);border-radius:9px}
+.bcard:hover{border-color:var(--c)}
+.bcard.on{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent)}
+.road{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px;position:relative}
+.node{position:relative;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:14px;cursor:pointer;font-family:inherit;display:grid;gap:4px;transition:.15s}
+.node .dot{width:28px;height:28px;border-radius:50%;background:var(--c);color:#fff;font:700 13px 'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.node b{font:600 13px/1.3 'Poppins',sans-serif}
+.node small{font-size:11px;color:var(--c);font-weight:600}
+.node:not(:last-child)::after{content:"";position:absolute;top:28px;right:-11px;width:12px;height:2px;background:var(--line)}
+.node.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 9%,var(--card))}
+.node.dim{opacity:.35;cursor:default}
+.rdetail{margin-top:14px;border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 7%,var(--card));border-radius:12px;padding:18px 20px}
+.rdetail .rh{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.rdetail .t{font:600 17px 'Poppins',sans-serif}
+.rdetail .rs{font-size:12px;color:var(--mute);margin-top:2px}
+.rdetail .bt{display:inline-block;padding:4px 12px;border-radius:99px;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c);font-size:12px}
+.rdetail ol.steps{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;counter-reset:st}
+.rdetail ol.steps li{counter-increment:st;font-size:13px;background:var(--card);border-radius:10px;padding:12px;display:grid;gap:6px}
+.rdetail ol.steps li::before{content:"Langkah " counter(st);font:700 11px 'Poppins',sans-serif;color:var(--c)}
+@media(max-width:860px){.bcards{grid-template-columns:1fr}.road{grid-template-columns:1fr 1fr}.node::after{display:none}.rdetail ol.steps{grid-template-columns:1fr}}
+.tool .bt{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:99px;background:var(--soft);color:var(--pri);font-size:11px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:8px 16px;border-radius:99px;font:500 13px 'Poppins',sans-serif;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--pri2)}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.tool{position:relative;overflow:hidden}
+.tool .n{position:absolute;right:16px;top:8px;font:700 38px/1 'Poppins',sans-serif;color:var(--soft)}
+.tool ol.steps{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:9px;counter-reset:st}
+.tool ol.steps li{counter-increment:st;display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.tool ol.steps li::before{content:counter(st);flex:none;width:22px;height:22px;border-radius:50%;background:var(--pinksoft);color:var(--pink);font:700 11px 'Poppins',sans-serif;display:flex;align-items:center;justify-content:center}
+.tip{background:linear-gradient(135deg,#6d5dd3,#9a62e0 65%,#e8489a);color:#fff}
+.tip h3{color:#fff}
+.calcgrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+.cside .card{position:sticky;top:20px}
+.ctask{padding:14px 0;border-top:1px solid var(--line)}
+.ctask:first-child{border-top:0;padding-top:6px}
+.cth{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:14px}
+.cthv{font-size:12px;color:var(--pri);font-weight:600;white-space:nowrap}
+.crow{display:grid;grid-template-columns:1fr 1.5fr;gap:18px}
+.crow label{font-size:12px;color:var(--mute);display:block}
+.inpw{position:relative;margin-top:5px}
+.inpw input{padding-right:74px}
+.inpw em{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-style:normal;font-size:11px;color:var(--mute)}
+.rng{display:flex;align-items:center;gap:10px;height:44px}
+.rng input{accent-color:var(--pri);width:100%}
+.rng output{min-width:40px;text-align:right;font:700 13px 'Poppins',sans-serif;color:var(--ink)}
+.livegauge.big{width:190px;height:190px;margin:10px auto}
+.livegauge.big b{font-size:44px}
+#calcArc{transition:stroke-dashoffset .5s ease}
+footer ol{list-style:none;padding:0;margin:10px 0 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px 28px;counter-reset:s}
+footer li{counter-increment:s;display:flex;gap:9px;align-items:flex-start;line-height:1.45}
+footer li::before{content:counter(s);flex:none;width:19px;height:19px;border-radius:6px;background:var(--soft);color:var(--pri);font:600 10.5px 'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;margin-top:1px}
+[data-theme=dark] footer a,[data-theme=dark] footer li::before,[data-theme=dark] .lg summary,[data-theme=dark] .cthv,[data-theme=dark] .pf .v,[data-theme=dark] .kpi:nth-child(odd) .n,[data-theme=dark] .src a{color:#a79bf5}
+[data-theme=dark] .btn.ghost{color:#c0b6ff}
+[data-theme=dark]{--pink:#ff7ab9}
+[data-theme=dark] .brand b{color:#a79bf5}
+[data-theme=dark] .badge{filter:brightness(1.45)}
+footer a{text-decoration:none}
+footer a:hover{text-decoration:underline}
+@media(max-width:1000px){.calcgrid{grid-template-columns:1fr}.cside .card{position:static}footer ol{grid-template-columns:1fr}.crow{grid-template-columns:1fr}}
+.fill{display:flex;flex-direction:column}
+.fill .chart{flex:1 1 0;min-height:320px}
+.fill .answer{margin-top:14px}
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;margin-top:16px}
+.bento>.c3{grid-column:span 3}.bento>.c4{grid-column:span 4}.bento>.c5{grid-column:span 5}
+.bento .card{padding:16px}
+.bento h3{font-size:14px}
+.bento .sub{font-size:11.5px;margin-bottom:8px}
+.bento .fill .chart{min-height:200px}
+.bento .answer{font-size:12px;padding:8px 10px;margin-top:10px;line-height:1.45}
+.bento .pf{gap:8px}.bento .pf div{padding:9px}.bento .pf .v{font-size:17px}
+.bento .quad{gap:10px}.bento .quad>div{padding:11px}
+.bento select{padding:8px 10px;font-size:13px}
+.q-main{padding:14px 20px}
+.q-main h3{font-size:clamp(15px,1.7vw,18px)!important}
+.kpi .n{font-size:26px}
+.kpi .s{font-size:11px}
+.gw{width:74px;height:74px}
+.gw .n{font-size:14px}
+.spark{height:34px;margin-top:6px}
+.duo{display:grid;grid-template-columns:7fr 5fr;gap:18px;margin-top:10px}
+.duo h2{margin:22px 0 10px}
+.list{display:grid;gap:12px}
+.list .card{padding:14px 16px}
+.list .card h3{font-size:14px;margin-bottom:2px}
+.list .card p{font-size:12.5px!important;margin:4px 0 0!important}
+details.src summary{cursor:pointer;font:700 14px 'Poppins',sans-serif;color:var(--ink)}
+details.src[open] summary{margin-bottom:10px}
+@media(max-width:1180px){.bento>.c3,.bento>.c4,.bento>.c5{grid-column:span 6}}
+@media(max-width:720px){.bento>.c3,.bento>.c4,.bento>.c5{grid-column:span 12}.duo{grid-template-columns:1fr}}
+.mapcard{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+.mapbox{position:relative;max-width:940px;width:100%;margin:0 auto}
+.mapbox svg{width:100%;height:auto;display:block}
+.mapbox path{stroke:var(--card);stroke-width:2.2;stroke-linejoin:round;cursor:pointer;transition:opacity .15s}
+.mapbox svg:hover path{opacity:.5}
+.mapbox svg path:hover{opacity:1}
+.mapbox path.sel{stroke:var(--ink);stroke-width:5}
+.maptip{display:none;position:absolute;pointer-events:none;background:var(--ink);color:var(--card);border-radius:10px;padding:8px 11px;font-size:12px;line-height:1.4;z-index:5;max-width:210px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.maptip b{display:block;font-size:13px}.maptip span{font-weight:600}.maptip small{display:block;opacity:.8;margin-top:2px}
+.legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+.lg{background:var(--soft);border-radius:14px;padding:10px 13px}
+.lgh{display:flex;align-items:center;gap:8px;font-size:13.5px}.lgh i{width:12px;height:12px;border-radius:4px;flex:none}.lgh em{margin-left:auto;font-style:normal;font-size:11.5px;color:var(--mute)}
+.lg .sub{margin:3px 0 0}
+.lg summary{cursor:pointer;font-size:11.5px;color:var(--pri);margin-top:4px}
+.lg details span{display:inline-block;background:var(--card);border-radius:8px;padding:1px 7px;margin:3px 3px 0 0;font-size:11px}
+.bento>.c6{grid-column:span 6}.bento>.c12{grid-column:span 12}
+.bento .c6 .chart{min-height:270px}
+.bento .quad{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpi .bar{height:6px;border-radius:99px;background:var(--line);margin-top:auto;overflow:hidden}
+.kpi .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--pri),var(--pink))}
+.kpi .spark,.kpi .gw{margin-top:auto}
+.stack2{display:flex;flex-direction:column;gap:16px;min-width:0}
+.stack2>.fill{flex:1}
+@media(max-width:1180px){.legend{grid-template-columns:repeat(2,minmax(0,1fr))}.bento>.c6{grid-column:span 12}.bento .quad{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.wide{grid-template-columns:1.7fr 1fr}
+.split{display:grid;grid-template-columns:1.8fr 1fr;gap:18px;align-items:start}
+.stack{display:grid;gap:18px;min-width:0}
+.sticky{position:sticky;top:20px}
+.spark{height:42px;margin-top:8px}
+.gw{position:relative;width:92px;height:92px;margin:4px 0}
+.gw .n{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:17px;margin:0}
+.cekgrid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;align-items:start}
+.cekmain,.cekside{display:grid;gap:16px;min-width:0}
+.livegauge{position:relative;width:150px;height:150px;margin:4px auto 0}
+.livegauge svg{width:100%;height:100%;display:block}
+.livegauge circle#liveArc{transition:stroke-dashoffset .6s ease}
+.livegauge b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 34px/1 'Poppins',sans-serif}
+.livegauge b small{font:500 11px 'Poppins',sans-serif;color:var(--mute);margin-top:4px}
+.scale{position:relative;display:flex;height:10px;border-radius:99px;margin:34px 0 6px}
+.scale i{display:block;height:100%}
+.scale i:first-of-type{border-radius:99px 0 0 99px}.scale i:nth-of-type(3){border-radius:0 99px 99px 0}
+.mk{position:absolute;top:-5px;left:0;width:4px;height:20px;border-radius:3px;background:var(--ink);transform:translateX(-2px);transition:left .6s ease}
+.mk::before{content:attr(data-v);position:absolute;bottom:25px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--card);font:600 11px 'Poppins',sans-serif;padding:1px 8px;border-radius:7px}
+.scalelab{position:relative;height:16px;font-size:10.5px;color:var(--mute)}
+.scalelab span{position:absolute;transform:translateX(-50%)}
+.scalelab span:first-child{transform:none}.scalelab span:last-child{transform:translateX(-100%)}
+.lvls{display:grid;gap:10px;margin-top:10px}
+.lvls>div{display:grid;grid-template-columns:12px 1fr auto;column-gap:8px;align-items:center;background:var(--soft);border-radius:12px;padding:9px 12px}
+.lvls i{width:12px;height:12px;border-radius:4px}
+.lvls b{font-size:13px}.lvls span{font-size:11.5px;color:var(--mute)}
+.lvls p{grid-column:1/-1;margin:2px 0 0;font-size:12px;color:var(--mute)}
+.nat{margin-bottom:12px}
+.nat:last-child{margin-bottom:0}
+.nat .t{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-bottom:5px}
+.nat .t b{font:700 13px 'Poppins',sans-serif}
+.nat .bar2{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.nat .bar2 i{display:block;height:100%;border-radius:99px}
+.nat small{display:block;font-size:10.5px;color:var(--mute);margin-top:3px}
+@media(max-width:1000px){.cekgrid{grid-template-columns:1fr}}
+.cekmain .wiz+.wiz{margin-top:0}
+.prog{display:flex;align-items:center;gap:12px;margin:6px 0 18px;font-size:12px;color:var(--mute)}
+.prog .meter{flex:1;margin:0;height:8px}
+.qq{font:600 18px/1.4 'Poppins',sans-serif;margin:0 0 14px}
+.opts.stack1{flex-direction:column;align-items:stretch}
+.opts.stack1 label{border-radius:14px;padding:12px 16px;font-size:14px}
+.qnav{display:flex;justify-content:space-between;margin-top:18px}
+.gauge{position:relative;width:170px;height:170px;margin:0 auto}
+.gauge b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 38px/1 'Poppins',sans-serif}
+.gauge b small{font:500 11px 'Poppins',sans-serif;color:var(--mute);margin-top:4px}
+.resrow{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.resrow>div:last-child{flex:1;min-width:240px}
+@media(max-width:1000px){.wide,.split{grid-template-columns:1fr}.sticky{position:static}}
+@media(max-width:860px){.app,.app.collapsed{grid-template-columns:1fr}.sbtoggle{display:none}.brandrow{padding-bottom:0}.collapsed .brand .full{display:inline}.collapsed .brand .mini{display:none}.collapsed nav button{font-size:13.5px;gap:12px;justify-content:flex-start;padding:11px 12px}.collapsed .next{display:none}.collapsed .theme span{display:inline}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:14px 16px;border-right:0;border-bottom:1px solid var(--line)}.brand{padding:0 8px 0 0}nav{flex-direction:row;flex-wrap:wrap;width:100%}nav button.on::after{display:none}.sidefoot{margin:0;flex-direction:row;align-items:center;width:100%}.next{display:none}header,main,footer{padding-left:16px;padding-right:16px}.k2{grid-template-columns:1fr}}
+
+/* ---- mobile polish ---- */
+@media(max-width:860px){
+  .app,.app.collapsed{grid-template-columns:minmax(0,1fr)}
+  .content,main,.side{min-width:0;max-width:100vw}
+  .side{position:sticky;top:0;z-index:30;padding:10px 14px 8px;gap:6px 10px;flex-wrap:nowrap;flex-direction:column;align-items:stretch;box-shadow:0 2px 10px rgba(70,60,140,.08)}
+  .brandrow{padding:0;display:flex;align-items:center;justify-content:space-between}
+  .brandrow .brand{padding:0;font-size:17px}
+  .sidefoot{position:absolute;right:14px;top:10px;width:auto;margin:0}
+  .sidefoot .theme span{display:none}
+  nav{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:6px;width:100%;margin:0;padding:2px 0 4px;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav button{flex:none;padding:8px 12px;font-size:12.5px;gap:7px;white-space:nowrap;width:auto}
+  nav button span,.collapsed nav button span{display:none}
+  nav button svg{width:16px;height:16px}
+  header.top{padding-top:18px;gap:10px}
+  header.top .tl{flex:1 1 100%}
+    .k4{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .k4>*,.bento>*,.grid>*{min-width:0}
+  #kpis>:last-child:nth-child(odd){grid-column:span 2}
+  .k4 .kpi{padding:14px}
+  .fbar{gap:14px;padding:14px 16px}
+  .fbar .fg{width:100%}
+  .fbar select{width:100%}
+  .fbar .seg{display:flex;flex-wrap:wrap;width:100%}
+  .fbar .seg button{flex:1 1 45%;padding:8px 6px}
+  .dual{width:100%}
+  .fbar .fend{margin-left:0;width:100%;justify-content:space-between}
+  .legend{grid-template-columns:1fr}
+  .card{padding:16px}
+  .tool,.q-main{padding:16px}
+}
+@media(max-width:420px){
+  .k4{grid-template-columns:1fr 1fr}
+  h1,.top h1{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brandrow"><div class="brand"><span class="full">UMKM <b>Siap</b> AI</span><span class="mini">S<b>AI</b></span></div>
+  <button class="sbtoggle" id="sbToggle" type="button" aria-label="Buka/tutup sidebar" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button></div>
+  <nav>
+  <button class="on" data-t="kondisi"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Kondisi UMKM<span>Data & insight</span></button>
+  <button data-t="cek"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>Cek Kesiapan AI<span>Kuis 8 pertanyaan</span></button>
+  <button data-t="rekom"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Rekomendasi AI<span>Per jenis usaha</span></button>
+  <button data-t="hitung"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>Kalkulator Hemat<span>Waktu yang bisa dihemat</span></button>
+</nav>
+  <div class="sidefoot">
+    <div class="next"><small>Fakta cepat</small><b>14,5%</b><span>UMKM yang sudah pakai AI dalam operasional (Google, 2026)</span></div>
+    <label class="theme"><input type="checkbox" id="theme"><i></i><span>Mode gelap</span></label>
+  </div>
+</aside>
+<div class="content">
+<header class="top">
+  <div class="tl">
+    <h1 id="pageTitle">UMKM Indonesia di Era AI:<br><span class="gr1">Siapa yang Siap</span>, <span class="gr2">Siapa yang Tertinggal?</span></h1>
+    <p id="pageSub"></p>
+  </div>
+</header>
+
+
+<main>
+<!-- TAB 1 -->
+<section id="kondisi" class="on">
+  <div class="card q-main"><div class="sub" style="margin:0">Pertanyaan utama</div><h3>Seberapa siap UMKM Indonesia memanfaatkan AI, dan di mana kesenjangannya paling besar?</h3></div>
+
+  <div class="grid k4" id="kpis" style="margin-top:16px"></div>
+
+  <div class="card fbar" id="fbar">
+    <div class="fg"><label>Wilayah</label><select id="fPulau"></select></div>
+    <div class="fg"><label>Kuadran kesiapan</label><div class="chips sm" id="fKuad"></div></div>
+    <div class="fg"><label>Akses internet: <b id="fInetTxt">0–100%</b></label><div class="dual"><input type="range" id="fImin" min="0" max="100" step="1" value="0" aria-label="Akses internet minimum"><input type="range" id="fImax" min="0" max="100" step="1" value="100" aria-label="Akses internet maksimum"></div></div>
+    <div class="fg"><label>Warna peta</label><div class="seg" id="segMap"></div></div>
+    <div class="fg fend"><span id="fCount"></span><button class="btn ghost" id="fReset" type="button" style="padding:7px 14px;font-size:12px">Reset filter</button></div>
+  </div>
+
+  <div class="bento">
+    <div class="card fill c12"><h3>Peta kesiapan: provinsi mana yang siap AI?</h3><p class="sub">Dibagi berdasarkan median akses internet & usaha e-commerce per 1.000 penduduk. Arahkan kursor ke provinsi, klik untuk lihat profilnya.</p><div id="kuadran" class="mapcard"></div></div>
+    <div class="card fill c5"><h3>Apakah digitalisasi UMKM sedang tumbuh?</h3><p class="sub">Usaha e-commerce (juta) vs % penduduk akses internet, 2020–2024 · BPS</p><div class="chart"><canvas id="cTren"></canvas></div><p class="answer">Usaha e-commerce naik 86% dalam 4 tahun: 2,36 juta (2020) → 4,40 juta (2024).</p></div>
+
+    <div class="card fill c3"><h3>Pulau mana yang tumbuh paling cepat?</h3><p class="sub">Pertumbuhan usaha e-commerce 2020 → 2024 (%)</p><div class="chart"><canvas id="cGrowth"></canvas></div><p class="answer">Luar Jawa tumbuh 2–4× lebih cepat. Maluku & Papua +295%, Jawa +64%.</p></div>
+
+    <div class="card fill c4"><h3>Apakah distribusinya adil?</h3><p class="sub">Share usaha e-commerce vs share penduduk per pulau, 2024</p><div class="chart"><canvas id="cPulau"></canvas></div><p class="answer">Jawa: 56% penduduk tapi 66% usaha e-commerce. Maluku & Papua: 3,2% penduduk, cuma 0,9% usaha.</p></div>
+
+    <div class="card fill c5">
+      <div class="row" style="align-items:end;margin-bottom:8px">
+        <div><div class="sub" style="margin:0 0 4px">Tampilkan</div><div class="seg" id="segMetric"><button class="on" data-v="per1000">Per 1.000 penduduk</button><button data-v="jumlah_usaha">Jumlah usaha</button></div></div>
+      </div>
+      <h3 id="provTitle">Usaha e-commerce per 1.000 penduduk, 2024</h3><p class="sub">BPS Statistik E-Commerce 2024 ÷ proyeksi penduduk 2024. Klik batang untuk lihat profil provinsi.</p>
+      <div class="chart" id="provWrap" style="height:240px"><canvas id="cProv"></canvas></div>
+      <div class="row" style="align-items:center;margin-top:8px"><button class="btn ghost" id="toggleAll" style="flex:none;padding:7px 14px;font-size:12px">Lihat semua 38 provinsi</button><span class="sub" id="provNote" style="margin:0"></span></div>
+      <p class="answer" id="provAns"></p>
+    </div>
+
+    <div class="card fill c4"><h3>Apakah akses internet mendorong UMKM go-digital?</h3><p class="sub">Tiap titik = 1 provinsi, 2024. Garis putus = median.</p><div class="chart"><canvas id="cScatter"></canvas></div><p class="answer" id="scAns"></p></div>
+
+    <div class="card fill c3" id="profil"><h3>Profil provinsi</h3><p class="sub">Klik batang/titik di chart atau pilih di sini</p><select id="fProv"></select><div id="profilBody" style="margin-top:10px"></div></div>
+
+
+
+    <div class="card fill c6"><h3>Apa hambatan terbesar UMKM online?</h3><p class="sub">% usaha e-commerce menurut kendala utama, 2024 · BPS</p><div class="chart"><canvas id="cKendala"></canvas></div><p class="answer">Pemasaran (20,5%) & kurang tenaga terampil (16,0%): dua hal yang paling bisa dibantu AI.</p></div>
+    <div class="card fill c6"><h3>Seberapa besar gap antara kenal AI dan pakai AI?</h3><p class="sub">Gabungan survei berbeda metode, baca sebagai arah, bukan angka tunggal</p><div class="chart"><canvas id="cAI"></canvas></div><p class="answer">±76% UMKM responden pernah dengar AI, tapi baru ±14,5% memakainya dalam operasional.</p></div>
+  </div>
+
+  <div class="duo">
+    <div><h2>Key insights</h2><div class="list" id="insights"></div></div>
+    <div><h2>Rekomendasi</h2><div class="list" id="recs"></div></div>
+  </div>
+
+  <details class="card src" style="margin-top:22px"><summary>Metodologi</summary>
+<ol style="margin:0;padding-left:18px">
+      <li>Data jumlah usaha e-commerce diekstrak dari tabel lampiran publikasi BPS Statistik E-Commerce 2021 (tahun data 2020), 2022, 2023, dan 2024.</li>
+      <li>Data penduduk (proyeksi SP2020) dan % penduduk 5+ mengakses internet diunduh dari Tabel Statistik BPS, lalu dibersihkan (nama provinsi diseragamkan, baris catatan dibuang) dan digabung per provinsi.</li>
+      <li>Indikator dihitung: usaha per 1.000 penduduk, share pulau, pertumbuhan 2020→2024 (4 provinsi baru Papua digabung ke provinsi induk), korelasi Pearson & Spearman, dan pembagian kuadran berdasarkan median.</li>
+      <li>Catatan kualitas: metode survei BPS berbeda antar tahun sehingga tren bersifat indikatif; estimasi Papua Tengah (RSE 27%) dan Papua Pegunungan (RSE 33%) kurang andal; jumlah 2023 untuk provinsi luar Jawa dihitung dari persentase × total nasional.</li>
+    </ol>
+  </details>
+</section>
+
+<!-- TAB 2 -->
+<section id="cek">
+  <div class="cekgrid">
+    <div class="cekmain">
+      <div class="card wiz" id="quizCard">
+        <h3>Seberapa siap usahamu pakai AI?</h3>
+        <p class="sub">Jawab jujur, cuma 1 menit. Jawabanmu tidak dikirim ke mana pun.</p>
+        <div id="quiz"></div>
+      </div>
+      <div class="card result wiz" id="hasil"></div>
+      <div class="card">
+        <h3>Sebagai gambaran nasional</h3><p class="sub">Survei berbeda metode, baca sebagai arah</p>
+        <div id="natBars"></div>
+      </div>
+    </div>
+    <div class="cekside">
+      <div class="card">
+        <h3>Poin terkumpul</h3><p class="sub">Bertambah setiap kamu menjawab</p>
+        <div class="livegauge"><svg viewBox="0 0 120 120"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d5dd3"/><stop offset="1" stop-color="#e8489a"/></linearGradient></defs><circle cx="60" cy="60" r="50" fill="none" stroke="var(--line)" stroke-width="12"/><circle id="liveArc" cx="60" cy="60" r="50" fill="none" stroke="url(#lg1)" stroke-width="12" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 60 60)"/></svg><b id="livePts">0<small>dari 24 poin</small></b></div>
+      </div>
+      <div class="card">
+        <h3>Arti skor</h3><p class="sub">Posisimu pada skala 0–100</p>
+        <div class="scale"><i style="width:40%;background:#e8489a"></i><i style="width:30%;background:#f5a85b"></i><i style="width:30%;background:#6d5dd3"></i><span class="mk" id="mk" data-v="0"></span></div>
+        <div class="scalelab"><span>0</span><span style="left:40%">40</span><span style="left:70%">70</span><span style="left:100%">100</span></div>
+        <div class="lvls">
+          <div><i style="background:#e8489a"></i><b>Pemula</b><span>0–39</span><p>Perkuat fondasi digital dulu: katalog, pencatatan, internet.</p></div>
+          <div><i style="background:#f5a85b"></i><b>Berkembang</b><span>40–69</span><p>Sudah online, saatnya pakai AI untuk pekerjaan paling makan waktu.</p></div>
+          <div><i style="background:#6d5dd3"></i><b>Siap AI</b><span>70–100</span><p>Siap lebih jauh, termasuk analisis data usaha.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 3 -->
+<section id="rekom">
+  <div class="card">
+    <div class="stepl"><i>1</i>Pilih jenis usahamu</div>
+    <div class="chips" id="sektorChips"></div>
+    <select id="sektor" style="display:none"></select>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="prow"><div><h3 style="margin:0">Peta jalan 4 minggu</h3><p class="sub" style="margin:2px 0 0">Satu alat per minggu. Centang langkah yang sudah kamu coba; progres tersimpan di browser ini.</p></div><div class="pcount" id="pcount"></div></div>
+    <div class="pbar"><i id="pbar"></i></div>
+    <div class="weeks" id="weeks"></div>
+    <div class="wdone" id="wdone" hidden></div>
+    <p class="sub" style="margin:14px 0 0">Catatan: urutan, jadwal mingguan, dan langkah disusun penulis sebagai saran praktis, bukan hasil olah data BPS. Hanya persentase hambatan yang berasal dari data. Cek ulang fitur gratis tiap tools sebelum dipakai.</p>
+  </div>
+</section>
+
+<!-- TAB 4 -->
+<section id="hitung">
+  <div class="calcgrid">
+    <div class="card">
+      <h3>Berapa jam yang bisa kamu hemat per bulan?</h3>
+      <p class="sub">Isi perkiraan waktu yang kamu habiskan sekarang. Persentase hemat adalah asumsi konservatif dan bisa diubah dengan slider.</p>
+      <div id="calc"></div>
+    </div>
+    <div class="cside">
+      <div class="card resultcard">
+        <div class="sub" style="margin:0;text-align:center">Perkiraan waktu yang bisa dihemat</div>
+        <div class="livegauge big"><svg viewBox="0 0 120 120"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d5dd3"/><stop offset="1" stop-color="#e8489a"/></linearGradient></defs><circle cx="60" cy="60" r="50" fill="none" stroke="var(--line)" stroke-width="12"/><circle id="calcArc" cx="60" cy="60" r="50" fill="none" stroke="url(#lg2)" stroke-width="12" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 60 60)"/></svg><b><span id="totJam">0</span><small>jam / bulan</small></b></div>
+        <p class="answer" id="totPct" style="text-align:center"></p>
+        <h3 style="margin:16px 0 10px;font-size:13px">Hemat per pekerjaan</h3>
+        <div id="brk"></div>
+        <p class="sub" id="totNote" style="margin:12px 0 0"></p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <details class="fsrc">
+    <summary>Sumber data</summary>
+    <ol id="sources"></ol>
+  </details>
+  <div style="margin-top:14px">Dibuat oleh Fadia Zahran Zain · Final Project Track Data Analytics · Creative Technology Future Talents 2026</div>
+</footer>
+</div></div>
+
+<script>
+/* ============ DATA: update di sini kalau ada rilis baru ============ */
+const DATA = {
+  kpi:[
+    {n:"65,5 jt",l:"Jumlah UMKM",s:"99% dari seluruh unit usaha · Kemenkop UKM",src:1},
+    {n:"61%",l:"Kontribusi ke PDB",s:"≈ Rp9.580 triliun · Kemenko Perekonomian",src:1},
+    {n:"97%",l:"Penyerapan tenaga kerja",s:"dari total tenaga kerja nasional",src:1},
+    {n:"4,40 jt",l:"Usaha e-commerce 2024",s:"naik 86% dari 2020 · BPS",src:1},
+    {n:"14,5%",l:"UMKM sudah pakai AI",s:"dalam operasional bisnis · Google, Jul 2026",src:4}
+  ],
+  tren:{label:["2020","2021","2022","2023","2024"],usaha:[2.36,2.87,3.00,3.82,4.40],inet:[53.73,62.10,66.48,69.21,72.78]},
+  kendala:{label:["Kurang permodalan","Kendala pemasaran","Kurang tenaga terampil","Lainnya","Keterbatasan pengiriman","Kecurangan jual beli","Keterbatasan internet"],val:[36.41,20.52,16.03,15.01,5.30,3.62,3.11]},
+  D: {"prov": [{"provinsi": "Aceh", "pulau": "Sumatera", "jumlah_usaha": 77754, "penduduk": 5554800.0, "per1000": 14.0, "share": 1.77, "internet_total": 62.93, "internet_kota": 70.8, "internet_desa": 58.66, "kuadran": "Bergerak"}, {"provinsi": "Sumatera Utara", "pulau": "Sumatera", "jumlah_usaha": 150183, "penduduk": 15588500.0, "per1000": 9.63, "share": 3.41, "internet_total": 74.15, "internet_kota": 77.43, "internet_desa": 69.69, "kuadran": "Potensial"}, {"provinsi": "Sumatera Barat", "pulau": "Sumatera", "jumlah_usaha": 76445, "penduduk": 5836200.0, "per1000": 13.1, "share": 1.74, "internet_total": 74.59, "internet_kota": 79.16, "internet_desa": 69.78, "kuadran": "Siap"}, {"provinsi": "Riau", "pulau": "Sumatera", "jumlah_usaha": 62718, "penduduk": 6728100.0, "per1000": 9.32, "share": 1.43, "internet_total": 77.68, "internet_kota": 84.3, "internet_desa": 73.2, "kuadran": "Potensial"}, {"provinsi": "Jambi", "pulau": "Sumatera", "jumlah_usaha": 51727, "penduduk": 3724300.0, "per1000": 13.89, "share": 1.18, "internet_total": 71.76, "internet_kota": 78.17, "internet_desa": 68.55, "kuadran": "Siap"}, {"provinsi": "Sumatera Selatan", "pulau": "Sumatera", "jumlah_usaha": 60385, "penduduk": 8837300.0, "per1000": 6.83, "share": 1.37, "internet_total": 70.54, "internet_kota": 80.34, "internet_desa": 64.5, "kuadran": "Tertinggal"}, {"provinsi": "Bengkulu", "pulau": "Sumatera", "jumlah_usaha": 71699, "penduduk": 2112200.0, "per1000": 33.95, "share": 1.63, "internet_total": 70.72, "internet_kota": 81.96, "internet_desa": 65.01, "kuadran": "Siap"}, {"provinsi": "Lampung", "pulau": "Sumatera", "jumlah_usaha": 117382, "penduduk": 9419600.0, "per1000": 12.46, "share": 2.67, "internet_total": 73.37, "internet_kota": 77.24, "internet_desa": 71.37, "kuadran": "Siap"}, {"provinsi": "Kep. Bangka Belitung", "pulau": "Sumatera", "jumlah_usaha": 42575, "penduduk": 1531500.0, "per1000": 27.8, "share": 0.97, "internet_total": 76.06, "internet_kota": 80.08, "internet_desa": 70.41, "kuadran": "Siap"}, {"provinsi": "Kepulauan Riau", "pulau": "Sumatera", "jumlah_usaha": 53829, "penduduk": 2183300.0, "per1000": 24.65, "share": 1.22, "internet_total": 89.26, "internet_kota": 91.52, "internet_desa": 69.66, "kuadran": "Siap"}, {"provinsi": "DKI Jakarta", "pulau": "Jawa", "jumlah_usaha": 462782, "penduduk": 10684900.0, "per1000": 43.31, "share": 10.52, "internet_total": 87.84, "internet_kota": 87.84, "internet_desa": null, "kuadran": "Siap"}, {"provinsi": "Jawa Barat", "pulau": "Jawa", "jumlah_usaha": 709851, "penduduk": 50345200.0, "per1000": 14.1, "share": 16.13, "internet_total": 76.62, "internet_kota": 79.42, "internet_desa": 65.35, "kuadran": "Siap"}, {"provinsi": "Jawa Tengah", "pulau": "Jawa", "jumlah_usaha": 625695, "penduduk": 37892300.0, "per1000": 16.51, "share": 14.22, "internet_total": 73.15, "internet_kota": 76.08, "internet_desa": 69.78, "kuadran": "Siap"}, {"provinsi": "D.I. Yogyakarta", "pulau": "Jawa", "jumlah_usaha": 269398, "penduduk": 3759500.0, "per1000": 71.66, "share": 6.12, "internet_total": 80.1, "internet_kota": 83.98, "internet_desa": 68.24, "kuadran": "Siap"}, {"provinsi": "Jawa Timur", "pulau": "Jawa", "jumlah_usaha": 690542, "penduduk": 41814500.0, "per1000": 16.51, "share": 15.69, "internet_total": 69.36, "internet_kota": 75.22, "internet_desa": 61.69, "kuadran": "Bergerak"}, {"provinsi": "Banten", "pulau": "Jawa", "jumlah_usaha": 158639, "penduduk": 12431400.0, "per1000": 12.76, "share": 3.6, "internet_total": 75.17, "internet_kota": 79.82, "internet_desa": 56.77, "kuadran": "Siap"}, {"provinsi": "Bali", "pulau": "Bali & Nusa Tenggara", "jumlah_usaha": 134990, "penduduk": 4433300.0, "per1000": 30.45, "share": 3.07, "internet_total": 77.56, "internet_kota": 81.73, "internet_desa": 66.39, "kuadran": "Siap"}, {"provinsi": "Nusa Tenggara Barat", "pulau": "Bali & Nusa Tenggara", "jumlah_usaha": 49256, "penduduk": 5646000.0, "per1000": 8.72, "share": 1.12, "internet_total": 68.52, "internet_kota": 72.88, "internet_desa": 63.76, "kuadran": "Tertinggal"}, {"provinsi": "Nusa Tenggara Timur", "pulau": "Bali & Nusa Tenggara", "jumlah_usaha": 23239, "penduduk": 5656000.0, "per1000": 4.11, "share": 0.53, "internet_total": 54.84, "internet_kota": 76.88, "internet_desa": 46.73, "kuadran": "Tertinggal"}, {"provinsi": "Kalimantan Barat", "pulau": "Kalimantan", "jumlah_usaha": 40379, "penduduk": 5695500.0, "per1000": 7.09, "share": 0.92, "internet_total": 71.57, "internet_kota": 83.78, "internet_desa": 64.02, "kuadran": "Potensial"}, {"provinsi": "Kalimantan Tengah", "pulau": "Kalimantan", "jumlah_usaha": 30937, "penduduk": 2809700.0, "per1000": 11.01, "share": 0.7, "internet_total": 75.23, "internet_kota": 84.29, "internet_desa": 68.19, "kuadran": "Potensial"}, {"provinsi": "Kalimantan Selatan", "pulau": "Kalimantan", "jumlah_usaha": 67637, "penduduk": 4273400.0, "per1000": 15.83, "share": 1.54, "internet_total": 74.82, "internet_kota": 80.63, "internet_desa": 68.96, "kuadran": "Siap"}, {"provinsi": "Kalimantan Timur", "pulau": "Kalimantan", "jumlah_usaha": 89411, "penduduk": 4045900.0, "per1000": 22.1, "share": 2.03, "internet_total": 84.44, "internet_kota": 87.33, "internet_desa": 77.91, "kuadran": "Siap"}, {"provinsi": "Kalimantan Utara", "pulau": "Kalimantan", "jumlah_usaha": 18265, "penduduk": 739800.0, "per1000": 24.69, "share": 0.42, "internet_total": 77.44, "internet_kota": 81.92, "internet_desa": 69.24, "kuadran": "Siap"}, {"provinsi": "Sulawesi Utara", "pulau": "Sulawesi", "jumlah_usaha": 32448, "penduduk": 2701800.0, "per1000": 12.01, "share": 0.74, "internet_total": 68.44, "internet_kota": 75.08, "internet_desa": 60.13, "kuadran": "Bergerak"}, {"provinsi": "Sulawesi Tengah", "pulau": "Sulawesi", "jumlah_usaha": 25340, "penduduk": 3121800.0, "per1000": 8.12, "share": 0.58, "internet_total": 62.44, "internet_kota": 75.99, "internet_desa": 55.7, "kuadran": "Tertinggal"}, {"provinsi": "Sulawesi Selatan", "pulau": "Sulawesi", "jumlah_usaha": 108675, "penduduk": 9463400.0, "per1000": 11.48, "share": 2.47, "internet_total": 70.1, "internet_kota": 78.63, "internet_desa": 62.43, "kuadran": "Tertinggal"}, {"provinsi": "Sulawesi Tenggara", "pulau": "Sulawesi", "jumlah_usaha": 19911, "penduduk": 2793100.0, "per1000": 7.13, "share": 0.45, "internet_total": 70.36, "internet_kota": 78.79, "internet_desa": 64.96, "kuadran": "Tertinggal"}, {"provinsi": "Gorontalo", "pulau": "Sulawesi", "jumlah_usaha": 11013, "penduduk": 1227800.0, "per1000": 8.97, "share": 0.25, "internet_total": 65.92, "internet_kota": 74.03, "internet_desa": 59.04, "kuadran": "Tertinggal"}, {"provinsi": "Sulawesi Barat", "pulau": "Sulawesi", "jumlah_usaha": 28184, "penduduk": 1503200.0, "per1000": 18.75, "share": 0.64, "internet_total": 66.61, "internet_kota": 77.28, "internet_desa": 63.9, "kuadran": "Bergerak"}, {"provinsi": "Maluku", "pulau": "Maluku & Papua", "jumlah_usaha": 15769, "penduduk": 1945600.0, "per1000": 8.1, "share": 0.36, "internet_total": 59.96, "internet_kota": 74.74, "internet_desa": 48.44, "kuadran": "Tertinggal"}, {"provinsi": "Maluku Utara", "pulau": "Maluku & Papua", "jumlah_usaha": 3201, "penduduk": 1355600.0, "per1000": 2.36, "share": 0.07, "internet_total": 59.17, "internet_kota": 80.1, "internet_desa": 50.46, "kuadran": "Tertinggal"}, {"provinsi": "Papua Barat", "pulau": "Maluku & Papua", "jumlah_usaha": 1791, "penduduk": 578700.0, "per1000": 3.09, "share": 0.04, "internet_total": 62.96, "internet_kota": 79.14, "internet_desa": 55.75, "kuadran": "Tertinggal"}, {"provinsi": "Papua Barat Daya", "pulau": "Maluku & Papua", "jumlah_usaha": 4389, "penduduk": 627100.0, "per1000": 7.0, "share": 0.1, "internet_total": 65.75, "internet_kota": 77.98, "internet_desa": 53.4, "kuadran": "Tertinggal"}, {"provinsi": "Papua", "pulau": "Maluku & Papua", "jumlah_usaha": 4826, "penduduk": 1060600.0, "per1000": 4.55, "share": 0.11, "internet_total": 62.24, "internet_kota": 77.56, "internet_desa": 39.32, "kuadran": "Tertinggal"}, {"provinsi": "Papua Selatan", "pulau": "Maluku & Papua", "jumlah_usaha": 3040, "penduduk": 542100.0, "per1000": 5.61, "share": 0.07, "internet_total": 48.44, "internet_kota": 74.09, "internet_desa": 33.58, "kuadran": "Tertinggal"}, {"provinsi": "Papua Tengah", "pulau": "Maluku & Papua", "jumlah_usaha": 6284, "penduduk": 1472900.0, "per1000": 4.27, "share": 0.14, "internet_total": 28.71, "internet_kota": 82.62, "internet_desa": 12.3, "kuadran": "Tertinggal"}, {"provinsi": "Papua Pegunungan", "pulau": "Maluku & Papua", "jumlah_usaha": 384, "penduduk": 1467000.0, "per1000": 0.26, "share": 0.01, "internet_total": 6.76, "internet_kota": 41.86, "internet_desa": 4.15, "kuadran": "Tertinggal"}], "r": 0.51, "rho": 0.76, "medInternet": 70.63, "medPer1000": 11.75, "nat1000": 15.63, "pulau": [{"pulau": "Bali & Nusa Tenggara", "usaha": 207485, "pend": 15735300.0, "share_usaha": 4.71, "share_pend": 5.59, "per1000": 13.19, "growth": 101.12}, {"pulau": "Jawa", "usaha": 2916907, "pend": 156927800.0, "share_usaha": 66.28, "share_pend": 55.73, "per1000": 18.59, "growth": 64.37}, {"pulau": "Kalimantan", "usaha": 246629, "pend": 17564300.0, "share_usaha": 5.6, "share_pend": 6.24, "per1000": 14.04, "growth": 148.29}, {"pulau": "Maluku & Papua", "usaha": 39684, "pend": 9049600.0, "share_usaha": 0.9, "share_pend": 3.21, "per1000": 4.39, "growth": 295.14}, {"pulau": "Sulawesi", "usaha": 225571, "pend": 20811100.0, "share_usaha": 5.13, "share_pend": 7.39, "per1000": 10.84, "growth": 169.92}, {"pulau": "Sumatera", "usaha": 764697, "pend": 61515800.0, "share_usaha": 17.38, "share_pend": 21.84, "per1000": 12.43, "growth": 163.03}], "growthProv": {"Aceh": 322.7, "Bali": 99.7, "Banten": 164.2, "Bengkulu": 241.6, "D.I. Yogyakarta": 82.3, "DKI Jakarta": 111.7, "Gorontalo": 130.5, "Jambi": 155.9, "Jawa Barat": 50.0, "Jawa Tengah": 53.8, "Jawa Timur": 47.6, "Kalimantan Barat": 125.1, "Kalimantan Selatan": 170.9, "Kalimantan Tengah": 149.4, "Kalimantan Timur": 132.3, "Kalimantan Utara": 230.0, "Kep. Bangka Belitung": 346.5, "Kepulauan Riau": 162.2, "Lampung": 146.8, "Maluku": 348.2, "Maluku Utara": 76.2, "Nusa Tenggara Barat": 94.8, "Nusa Tenggara Timur": 125.7, "Papua": 380.8, "Papua Barat": 266.8, "Riau": 145.2, "Sulawesi Barat": 596.4, "Sulawesi Selatan": 156.5, "Sulawesi Tengah": 147.8, "Sulawesi Tenggara": 98.7, "Sulawesi Utara": 167.4, "Sumatera Barat": 193.1, "Sumatera Selatan": 110.1, "Sumatera Utara": 105.5}},
+  ai:{label:["Pernah dengar soal AI","Pakai/coba AI (responden survei daring)","Benar-benar pakai AI dalam operasional"],val:[76,67.65,14.5],note:["UKM Indonesia × ICCI, 2025","UKM Indonesia × ICCI, 2025","Google, 2026"]},
+  insights:[
+    ["Digitalisasi tumbuh cepat","Usaha e-commerce naik 86% dalam 4 tahun, dari 2,36 juta (2020) ke 4,40 juta (2024), seiring akses internet penduduk naik dari 53,7% ke 72,8%."],
+    ["Masih Jawa-sentris, tapi luar Jawa mengejar","Jawa menampung 56% penduduk tapi 66% usaha e-commerce. Namun pertumbuhan luar Jawa 2–4× lebih cepat: Sulawesi +170%, Sumatera +163%, Maluku & Papua +295%."],
+    ["Internet adalah prasyarat","Provinsi dengan akses internet lebih tinggi cenderung punya lebih banyak usaha online (korelasi Spearman ρ = 0,76). 15 provinsi, termasuk seluruh Papua & Maluku, masuk kuadran tertinggal."],
+    ["Hambatan utama justru bisa dibantu AI","Setelah modal (36%), kendala terbesar UMKM online adalah pemasaran (20,5%) dan kurang tenaga terampil (16%), persis area di mana AI generatif paling berguna."],
+    ["Kenal AI, belum pakai AI","±76% UMKM responden pernah dengar AI, tapi secara nasional baru ±14,5% yang memakainya dalam operasional. Menteri UMKM menyebut >90% belum memanfaatkan AI secara optimal."]
+  ],
+  recs:[
+    ["Untuk pelaku UMKM","Mulai dari 1 pekerjaan yang paling makan waktu (bikin caption, foto produk, atau balas chat), pakai tools AI gratis, lalu ukur waktu yang dihemat."],
+    ["Untuk pemerintah daerah","Provinsi kuadran Tertinggal: perluas internet desa dulu, lalu pelatihan digital. Kuadran Siap: langsung naikkan ke pelatihan AI untuk pemasaran & konten."],
+    ["Untuk komunitas & kampus","Libatkan mahasiswa/Gen Z sebagai pendamping AI bagi UMKM sekitar, misalnya lewat program KKN atau pemberdayaan masyarakat."],
+    ["Untuk platform & penyedia AI","Sediakan fitur AI dalam Bahasa Indonesia yang langsung tertanam di aplikasi yang sudah dipakai UMKM (marketplace, WhatsApp Business)."]
+  ],
+  sources:[
+    ["BPS – Statistik E-Commerce 2024 (rilis 28 Nov 2025)","https://www.bps.go.id/id/publication/2025/11/28/647323224ecc656c2933571b/statistik-e-commerce-2024.html"],
+    ["Kemenko Perekonomian / Kemenkop UKM via Bisnis.com – Kontribusi UMKM","https://kabar24.bisnis.com/read/20240307/15/1747349/jokowi-beberkan-jasa-besar-umkm-dukung-perekonomian-ri"],
+        ["IDX Channel – Google: 14,5% UMKM memanfaatkan AI (24 Jul 2026)","https://www.idxchannel.com/technology/perluasan-adopsi-ai-di-umkm-berpotensi-tingkatkan-nilai-tambah-triliunan-rupiah-bagi-pdb/all"],
+    ["UKM Indonesia × ICCI – Survei penggunaan AI oleh UMKM (2025)","https://ukmindonesia.id/baca-deskripsi-posts/laporan-survey-penggunaan-artificial-intelligence-ai-oleh-umkm-pemanfaatan-ai-belum-dioptimalkan-untuk-dongkrak-produktivitas-usaha"],
+    ["BCA Sekuritas/IQPlus – Menteri UMKM: >90% UMKM belum manfaatkan AI (9 Jul 2026)","https://bcasekuritas.co.id/latest-news/news/menteri-umkm-lebih-dari-90-persen-umkm-belum-manfaatkan-ai"],
+    ["BPS – Statistik E-Commerce 2021, 2022, 2023 (publikasi)","https://www.bps.go.id/id/publication"],
+    ["Peta batas provinsi: \"Indonesia GeoJSON & TopoJSON Maps (38 Provinces)\", lisensi CC BY 4.0. Batas wilayah disederhanakan untuk tampilan dashboard","https://github.com/denyherianto/indonesia-geojson-topojson-maps-with-38-provinces"],
+    ["BPS – Tabel: Penduduk, Laju Pertumbuhan, Kepadatan menurut Provinsi 2020–2025","https://www.bps.go.id/id/statistics-table"],
+    ["BPS – Tabel: % Penduduk 5+ Mengakses Internet menurut Provinsi & Klasifikasi Daerah 2020–2024","https://www.bps.go.id/id/statistics-table/2/NDA2IzI%3D/persentase-penduduk-usia-5-tahun-ke-"]
+  ]
+};
+
+const QUIZ = [
+  ["Usahamu sudah jualan online?",[["Belum",0],["Lewat WA/medsos",2],["Di marketplace/website",3]]],
+  ["Perangkat yang kamu pakai buat usaha?",[["HP saja",1],["HP + laptop",2],["HP, laptop & tablet/PC",3]]],
+  ["Internet di tempat usaha?",[["Sering susah sinyal",0],["Lumayan",1],["Stabil",3]]],
+  ["Bikin konten promosi sendiri?",[["Jarang/tidak",0],["Kadang",1],["Rutin tiap minggu",3]]],
+  ["Catatan penjualan disimpan di mana?",[["Tidak dicatat",0],["Buku tulis",1],["Excel/aplikasi kasir",3]]],
+  ["Pernah coba AI (ChatGPT, Gemini, Meta AI, dll)?",[["Belum pernah",0],["Pernah coba-coba",2],["Rutin dipakai",3]]],
+  ["Pernah ikut pelatihan digital/teknologi?",[["Belum",0],["Sekali",1],["Beberapa kali",3]]],
+  ["Seberapa sering chat pelanggan masuk per hari?",[["< 5",1],["5–20",2],["> 20",3]]]
+];
+
+const TOOLS = {
+  "Kuliner / makanan & minuman":[
+    ["Foto produk","Canva (Magic Edit, hapus background)",["Foto menu pakai HP di cahaya alami","Hapus background di Canva","Pakai template menu/feed"]],
+    ["Caption & promo","ChatGPT / Gemini / Meta AI di WhatsApp",["Ketik: 'Buat 5 caption promo es kopi gula aren, gaya santai'","Pilih & edit sesuai gaya kamu","Jadwalkan posting"]],
+    ["Balas chat otomatis","WhatsApp Business (balasan cepat + label)",["Minta AI menulis jawaban FAQ (harga, jam buka, ongkir)","Simpan sebagai balasan cepat","Pakai label pesanan baru/lunas"]],
+    ["Hitung HPP & harga jual","Google Sheets + Gemini",["Masukkan bahan & harga","Tanya AI rumus HPP & margin","Cek ulang tiap harga bahan naik"]]
+  ],
+  "Fesyen & kriya":[
+    ["Foto katalog","Canva / CapCut (background AI)",["Foto produk di latar polos","Ganti background jadi suasana lifestyle","Konsisten 1 gaya visual"]],
+    ["Deskripsi produk marketplace","ChatGPT / Gemini",["Kasih bahan, ukuran, keunggulan","Minta deskripsi + kata kunci pencarian","Tempel ke Shopee/Tokopedia"]],
+    ["Ide desain & motif","Canva AI / Gemini",["Minta ide palet warna & tren","Jadikan moodboard","Uji ke pelanggan lewat polling story"]],
+    ["Konten video pendek","CapCut (auto caption, template)",["Rekam proses produksi 15 detik","Pakai auto-caption","Upload ke Reels/TikTok"]]
+  ],
+  "Jasa (salon, bengkel, laundry, dll)":[
+    ["Jadwal & pengingat","Google Calendar + WhatsApp Business",["Catat booking di kalender","Siapkan template pengingat","Kirim H-1 ke pelanggan"]],
+    ["Balas pertanyaan harga","Meta AI / ChatGPT untuk FAQ",["Tulis daftar layanan & harga","Minta AI rapikan jadi pesan jelas","Simpan sebagai balasan cepat"]],
+    ["Review & testimoni","Google Business Profile",["Daftarkan usaha di Google Maps","Minta pelanggan kasih ulasan","Balas ulasan dibantu AI biar sopan"]],
+    ["Catat pemasukan","Google Sheets + Gemini",["Catat transaksi harian","Minta AI bikin ringkasan mingguan","Lihat layanan paling laku"]]
+  ],
+  "Konten kreatif, musik & desain":[
+    ["Brainstorm ide","ChatGPT / Gemini / Claude",["Minta 10 ide konten sesuai niche","Pilih 3 yang paling cocok","Buat kalender konten bulanan"]],
+    ["Editing cepat","CapCut / Canva",["Pakai fitur auto-cut & caption","Hapus noise audio","Ekspor berbagai rasio"]],
+    ["Portofolio & proposal","Canva + AI penulis",["Kumpulkan karya terbaik","Minta AI tulis deskripsi singkat","Kirim ke calon klien"]],
+    ["Cek hak cipta & etika","Pedoman platform",["Hindari meniru karya/karakter orang lain","Cantumkan jika pakai AI","Simpan file asli sebagai bukti karya"]]
+  ],
+  "Dagang / toko kelontong":[
+    ["Catat stok","Aplikasi kasir gratis / Google Sheets",["Masukkan daftar barang","Update stok tiap hari","Minta AI tandai barang hampir habis"]],
+    ["Promo WhatsApp","WhatsApp Business + Meta AI",["Buat katalog di WA Business","Minta AI tulis pesan promo mingguan","Kirim lewat broadcast/status"]],
+    ["Analisis barang laku","Google Sheets + Gemini",["Rekap penjualan per minggu","Tanya AI: 'barang apa paling laku?'","Atur ulang stok & posisi rak"]],
+    ["Belanja grosir hemat","ChatGPT / Gemini",["Masukkan daftar belanja & budget","Minta AI urutkan prioritas","Bandingkan harga supplier"]]
+  ]
+};
+
+const TASKS = [
+  ["Bikin caption/konten promosi",8,60],
+  ["Edit foto produk",6,50],
+  ["Balas chat pertanyaan yang sama",20,40],
+  ["Rekap penjualan/stok",6,50]
+];
+
+/* ============ RENDER ============ */
+/* peta: batas provinsi disederhanakan dari Indonesia GeoJSON (38 Provinsi), CC BY 4.0 */
+const MAPDATA={"w":2000,"h":736,"p":{"Sulawesi Tengah":"M1063 295L1065 307L1058 317L1069 321L1068 326L1077 336L1077 346L1086 343L1095 347L1101 345L1115 356L1131 358L1131 363L1147 364L1160 373L1156 385L1181 393L1183 401L1191 397L1181 390L1184 386L1170 377L1162 358L1150 353L1144 342L1141 345L1140 336L1156 343L1163 332L1187 323L1205 299L1218 295L1225 303L1229 303L1233 289L1225 283L1216 283L1202 288L1212 291L1179 292L1174 300L1168 302L1158 300L1154 293L1141 305L1131 321L1119 317L1112 320L1105 302L1101 298L1096 300L1086 288L1084 261L1089 250L1099 238L1111 235L1130 241L1141 237L1141 233L1133 229L1136 224L1164 215L1171 218L1178 213L1150 212L1145 206L1147 201L1137 204L1122 199L1118 200L1118 213L1110 217L1108 225L1100 223L1095 215L1093 223L1084 227L1085 236L1078 238L1078 249L1073 248L1077 255L1076 262L1065 259L1068 263L1074 264L1072 279L1077 296L1071 287L1063 295ZM1208 328L1220 315L1222 324L1218 328L1224 330L1225 321L1233 324L1238 314L1229 312L1224 319L1222 308L1210 310L1204 321L1208 328ZM1155 283L1158 280L1165 282L1166 277L1159 277L1155 283Z","Sulawesi Barat":"M1063 295L1052 314L1051 332L1055 339L1048 345L1045 366L1036 374L1031 373L1028 380L1029 383L1034 384L1029 393L1035 412L1039 414L1053 408L1060 411L1056 399L1067 394L1064 378L1072 377L1069 358L1077 346L1077 336L1068 326L1069 321L1058 317L1065 307L1063 295Z","Sulawesi Selatan":"M1060 411L1059 420L1067 431L1067 447L1060 466L1062 473L1054 491L1057 501L1070 507L1080 500L1088 502L1096 499L1103 503L1094 483L1096 471L1102 461L1098 451L1097 437L1102 422L1101 401L1094 396L1091 388L1115 373L1130 376L1127 383L1130 379L1143 390L1156 385L1160 373L1147 364L1131 363L1131 358L1115 356L1101 345L1095 347L1086 343L1077 346L1069 358L1072 371L1072 377L1064 378L1067 394L1056 399L1060 411ZM1102 529L1104 542L1107 523L1104 510L1102 529Z","Papua Tengah":"M1732 444L1746 453L1778 454L1854 486L1864 467L1858 461L1865 459L1861 455L1867 442L1863 445L1862 442L1857 442L1857 438L1865 441L1868 428L1884 425L1880 423L1880 417L1871 415L1872 400L1869 397L1870 388L1863 393L1840 392L1829 395L1825 403L1822 401L1826 398L1820 396L1823 406L1820 407L1818 400L1813 401L1810 395L1810 399L1806 400L1806 391L1796 390L1790 380L1781 376L1778 387L1759 405L1742 406L1731 400L1731 385L1724 388L1722 378L1719 381L1720 395L1725 405L1734 408L1738 415L1746 415L1738 421L1741 431L1732 444Z","Papua Barat":"M1632 354L1634 358L1648 358L1658 354L1677 356L1691 349L1694 356L1691 360L1692 366L1686 365L1684 374L1679 374L1678 369L1668 376L1666 368L1659 363L1638 381L1632 376L1616 374L1604 379L1609 380L1606 382L1610 387L1619 386L1627 390L1635 403L1642 400L1642 409L1647 413L1638 419L1646 436L1661 436L1670 427L1668 419L1676 412L1672 405L1678 407L1678 394L1687 386L1688 391L1679 400L1681 407L1677 410L1680 418L1686 421L1686 414L1691 426L1700 422L1702 425L1699 429L1707 435L1705 430L1709 431L1709 428L1716 435L1723 429L1736 431L1723 432L1724 436L1721 438L1732 444L1741 431L1738 421L1746 415L1738 415L1734 408L1725 405L1720 395L1719 381L1722 378L1722 368L1717 365L1714 383L1699 352L1697 331L1706 316L1694 300L1699 296L1692 290L1671 290L1669 310L1661 310L1651 317L1646 314L1638 339L1634 341L1637 349L1632 354Z","Gorontalo":"M1141 237L1149 234L1162 240L1187 235L1216 236L1225 244L1234 244L1237 233L1225 228L1225 223L1219 218L1211 216L1206 222L1190 213L1178 213L1171 218L1164 215L1136 224L1133 229L1141 233L1141 237Z","Riau":"M218 225L222 228L218 231L222 240L230 240L230 244L240 250L247 248L244 254L247 256L242 260L247 273L253 272L256 280L289 301L296 297L309 298L325 307L341 291L356 293L360 290L359 281L375 273L361 266L367 258L376 259L372 245L355 234L346 241L337 227L316 223L307 215L304 198L287 186L271 183L267 169L255 158L243 158L243 167L235 164L227 157L224 147L226 161L222 179L227 181L229 192L212 198L217 207L215 222L218 225ZM272 179L276 184L284 182L288 173L284 166L271 170L272 179ZM322 225L334 223L342 228L343 224L329 213L315 219L322 225ZM307 204L309 214L314 218L318 216L316 211L318 204L309 196L306 197L307 204ZM302 194L310 195L319 203L317 192L297 188L302 194ZM336 216L347 221L336 209L329 208L324 214L330 213L336 216ZM350 235L354 232L350 227L347 233L350 235Z","Papua Selatan":"M1854 486L1857 493L1862 492L1874 500L1870 502L1871 508L1880 513L1887 535L1904 551L1904 554L1910 555L1909 557L1893 561L1899 567L1898 574L1917 589L1912 601L1908 605L1909 610L1905 613L1908 619L1921 612L1927 617L1953 612L1994 655L2000 657L2000 559L1995 558L1992 550L1999 534L1999 492L1972 486L1966 479L1958 479L1961 483L1957 484L1955 480L1953 486L1948 484L1952 485L1955 479L1915 476L1919 465L1914 470L1905 463L1894 463L1893 467L1886 468L1882 462L1877 464L1872 458L1858 461L1864 467L1854 486ZM1856 626L1887 623L1898 614L1908 611L1907 603L1912 601L1915 589L1900 580L1878 584L1862 601L1854 621L1853 626L1856 626ZM1904 614L1898 615L1893 623L1907 624L1904 614ZM1899 548L1898 552L1905 556L1909 555L1905 555L1904 551L1899 548Z","D.I. Yogyakarta":"M646 603L683 616L679 609L680 600L668 597L666 587L658 594L651 593L646 603Z","Sumatera Barat":"M218 225L203 219L202 228L208 234L206 237L188 235L173 248L182 248L198 259L202 271L224 296L227 314L235 316L238 328L248 343L246 353L254 366L266 358L259 332L274 331L283 323L284 314L292 308L289 301L256 280L253 272L247 273L242 260L247 256L244 254L247 248L240 250L230 244L230 240L222 240L218 231L222 228L218 225ZM178 330L162 298L152 300L149 310L158 329L172 337L177 337L176 330L178 334L178 330ZM221 391L230 404L226 396L230 396L230 390L218 380L221 391ZM202 359L196 349L190 348L192 358L204 362L202 359ZM215 382L219 378L209 368L210 382L215 382Z","DKI Jakarta":"M503 524L502 528L506 534L512 535L514 524L503 524Z","Maluku":"M1427 411L1430 412L1436 395L1440 392L1440 399L1443 398L1452 409L1461 408L1470 398L1474 399L1473 405L1499 410L1498 402L1516 404L1520 410L1555 427L1557 416L1554 407L1547 406L1545 396L1536 389L1520 389L1498 379L1481 388L1478 380L1440 383L1435 387L1437 392L1425 396L1429 404L1427 411ZM1375 427L1398 418L1399 405L1391 405L1390 401L1393 399L1379 392L1345 397L1345 405L1352 416L1375 427ZM1577 606L1590 591L1590 575L1595 573L1591 569L1586 570L1582 579L1573 584L1570 593L1573 595L1567 595L1567 607L1575 604L1576 609L1577 606ZM1336 608L1348 603L1365 606L1368 600L1381 596L1371 588L1353 596L1342 593L1336 608ZM1705 559L1717 546L1699 527L1699 539L1703 542L1699 540L1696 554L1702 561L1705 559ZM1706 526L1720 536L1725 533L1728 524L1717 517L1713 521L1706 522L1706 526ZM1709 521L1724 513L1717 501L1713 501L1709 508L1703 508L1711 511L1706 517L1709 521ZM1437 423L1445 419L1443 416L1447 417L1447 411L1428 419L1432 423L1442 417L1437 423ZM1501 603L1508 610L1513 603L1505 598L1501 603ZM1644 520L1654 503L1657 488L1644 520ZM1639 518L1642 514L1637 502L1634 506L1639 518ZM1434 618L1437 614L1422 612L1424 616L1434 618ZM1554 623L1570 613L1560 613L1554 623ZM1706 533L1708 530L1704 526L1704 521L1700 521L1699 525L1706 533ZM1717 504L1721 508L1727 506L1718 501L1717 504ZM1720 501L1724 499L1715 495L1716 501L1720 501ZM1714 532L1709 536L1715 540L1717 535L1714 532Z","Bengkulu":"M254 366L267 378L281 400L307 419L310 432L355 468L367 473L375 467L370 464L368 456L362 458L358 455L360 447L344 444L337 437L341 434L325 424L331 420L332 412L337 416L340 412L340 405L319 401L318 393L309 391L300 379L291 377L283 369L277 370L278 365L266 358L254 366ZM306 495L313 498L314 493L303 489L301 491L306 495Z","Lampung":"M367 473L380 482L380 487L410 518L416 517L409 499L415 499L435 512L437 510L435 503L441 496L459 516L467 473L468 452L464 448L464 440L456 437L451 426L442 421L429 440L401 448L397 462L399 471L378 473L375 467L367 473Z","Papua":"M1781 376L1790 380L1796 390L1806 391L1806 400L1810 399L1810 395L1813 401L1818 400L1820 407L1823 406L1820 396L1826 398L1822 401L1825 403L1829 395L1840 392L1863 393L1870 388L1869 397L1872 400L1874 389L1879 391L1884 387L1891 386L1894 387L1894 399L1897 403L1901 397L1908 400L1906 408L1915 401L1918 408L1933 409L1938 421L1945 411L1956 420L1967 418L1970 422L1986 424L1986 428L1992 427L1989 431L1979 431L1979 425L1973 423L1974 430L1981 438L1986 435L1984 432L1999 434L1999 372L1986 373L1986 366L1973 363L1971 366L1960 359L1945 361L1906 344L1898 337L1871 328L1865 322L1830 336L1828 339L1835 348L1832 350L1814 356L1798 355L1791 372L1781 376ZM1759 331L1792 341L1820 336L1757 328L1759 331ZM1771 296L1775 309L1787 310L1798 305L1788 303L1773 288L1769 293L1771 296ZM1758 290L1765 297L1770 291L1753 286L1758 290ZM1733 308L1736 302L1734 305L1735 300L1730 299L1728 303L1733 308Z","Kepulauan Riau":"M563 91L570 94L564 95L566 99L572 98L576 91L576 85L568 73L558 83L563 91ZM394 212L399 214L404 212L403 218L409 223L413 218L410 204L399 206L394 212ZM407 270L415 267L421 272L427 270L420 264L417 266L409 257L403 266L407 270ZM396 279L400 288L404 284L406 286L411 279L405 273L399 277L399 273L396 279ZM382 214L390 213L390 207L381 208L382 214ZM361 230L363 225L357 219L356 226L361 230ZM462 131L464 127L458 125L460 135L462 131Z","Nusa Tenggara Barat":"M949 654L954 656L1001 646L1013 635L1013 645L1028 642L1035 644L1035 641L1026 640L1035 637L1045 640L1047 633L1041 636L1039 621L1030 620L1024 631L1024 620L1015 618L1008 623L1002 614L992 611L982 618L1005 632L1007 636L987 639L976 625L969 628L956 624L941 637L944 643L940 651L949 654ZM913 646L924 649L926 644L929 644L927 648L933 646L930 643L939 623L923 617L912 623L909 627L911 639L900 641L908 647L913 646ZM982 616L973 616L972 623L975 625L982 616Z","Jambi":"M289 301L292 308L284 314L283 323L274 331L259 332L266 358L278 365L277 370L283 369L291 377L300 379L309 373L322 375L331 370L334 360L350 359L351 351L361 361L365 347L363 344L366 339L402 329L406 331L400 303L376 302L360 290L356 293L341 291L325 307L309 298L296 297L289 301Z","Bali":"M861 628L872 638L868 644L872 645L876 636L895 624L872 610L858 616L840 612L846 625L861 628Z","Jawa Timur":"M685 617L708 619L720 624L725 619L762 627L788 620L819 634L832 634L837 637L836 640L847 640L836 631L841 599L825 595L823 590L810 596L784 596L772 591L770 576L762 573L758 557L739 560L732 553L720 553L715 560L717 570L710 575L710 580L696 575L698 594L703 602L697 604L695 610L688 610L685 617ZM764 571L800 575L804 569L816 570L816 567L826 563L817 558L771 559L763 565L764 571ZM880 561L889 561L875 556L873 561L882 563L880 561Z","Papua Barat Daya":"M1671 290L1648 278L1625 273L1613 277L1600 289L1573 294L1574 305L1560 321L1575 324L1578 316L1582 324L1594 320L1594 327L1600 327L1603 333L1608 333L1603 337L1605 344L1610 347L1608 349L1620 358L1632 354L1637 349L1634 341L1638 339L1646 314L1651 317L1661 310L1669 310L1671 290ZM1529 267L1534 270L1542 269L1544 276L1544 272L1549 271L1552 277L1560 272L1552 271L1547 262L1562 274L1567 272L1573 275L1578 271L1568 261L1554 258L1531 263L1539 266L1536 268L1529 267ZM1512 338L1507 341L1525 348L1538 345L1534 342L1538 338L1534 331L1512 338ZM1552 312L1556 317L1562 316L1566 303L1564 298L1547 300L1552 312ZM1549 297L1559 292L1540 293L1538 296L1549 297Z","Sumatera Utara":"M134 71L126 72L126 85L118 87L114 95L124 113L119 116L122 122L120 132L127 137L126 148L131 157L128 163L159 185L154 191L169 226L173 248L188 235L206 237L208 234L202 228L203 219L218 225L215 222L217 207L212 198L229 192L227 181L222 179L226 161L224 147L219 140L209 138L209 130L199 120L153 93L146 83L130 78L134 71ZM101 218L110 234L117 232L119 213L109 207L100 194L94 191L91 196L81 197L101 218ZM138 282L145 282L142 269L138 282ZM138 260L146 273L143 262L139 258L138 260Z","Sulawesi Tenggara":"M1127 383L1130 386L1129 397L1120 408L1121 412L1141 432L1153 436L1147 462L1156 470L1171 472L1174 469L1173 458L1179 454L1196 450L1202 455L1199 447L1206 452L1209 450L1207 436L1200 440L1199 433L1193 431L1199 428L1193 428L1189 422L1178 416L1182 413L1182 405L1187 409L1181 393L1156 385L1143 390L1130 379L1127 383ZM1195 500L1198 507L1201 504L1204 507L1209 501L1208 496L1223 490L1215 483L1210 484L1215 466L1220 464L1223 470L1217 449L1208 456L1203 478L1203 486L1205 486L1199 491L1195 500ZM1184 494L1187 490L1190 494L1193 489L1193 496L1198 492L1196 483L1203 472L1200 460L1184 469L1187 480L1182 491L1184 494ZM1163 491L1168 498L1172 496L1173 485L1168 479L1163 481L1163 491ZM1211 437L1219 444L1225 437L1214 432L1211 437Z","Nusa Tenggara Timur":"M1083 643L1109 643L1116 647L1119 644L1128 649L1141 647L1143 642L1160 646L1175 639L1186 640L1206 634L1204 626L1209 627L1214 620L1208 610L1202 617L1209 615L1209 620L1191 628L1191 634L1183 636L1170 627L1153 628L1149 634L1125 623L1101 618L1091 621L1088 627L1084 624L1077 628L1074 641L1078 645L1083 643ZM1236 710L1248 710L1263 702L1278 700L1300 679L1305 671L1300 660L1308 659L1309 652L1306 650L1300 654L1298 650L1278 659L1273 672L1267 667L1261 669L1261 666L1248 673L1239 692L1239 696L1247 697L1235 705L1233 710L1236 710ZM1053 685L1068 685L1090 705L1102 709L1119 699L1109 683L1103 678L1093 679L1092 673L1086 671L1080 663L1074 668L1052 667L1037 672L1036 675L1040 681L1053 685ZM1278 627L1306 622L1307 617L1305 614L1284 616L1283 613L1278 613L1275 619L1281 618L1272 626L1278 627ZM1206 736L1223 731L1231 725L1231 715L1223 720L1227 721L1205 729L1206 736ZM1226 631L1238 632L1241 625L1254 618L1248 615L1243 619L1240 617L1238 623L1235 623L1238 618L1231 619L1234 623L1223 630L1226 631ZM1262 631L1270 622L1271 616L1261 624L1260 620L1256 623L1253 627L1259 626L1262 631ZM1214 625L1226 624L1228 619L1220 618L1214 625ZM1159 722L1169 719L1170 714L1163 714L1156 720L1159 722ZM1059 627L1056 635L1058 640L1064 630L1059 627ZM1211 633L1221 626L1213 627L1208 633L1211 633ZM1067 634L1065 640L1069 643L1074 634L1068 638L1067 634Z","Kalimantan Selatan":"M836 409L848 417L849 440L907 416L909 405L920 394L912 389L914 382L915 386L920 389L926 371L922 369L930 370L932 363L915 359L901 362L900 348L895 347L896 337L891 323L898 315L881 324L878 339L884 343L883 346L877 355L862 365L854 377L847 381L836 409ZM912 435L922 429L919 398L913 403L908 417L912 435Z","Aceh":"M134 71L135 65L122 60L118 44L101 29L88 33L73 28L52 30L39 27L30 18L18 12L10 11L0 17L1 27L15 55L57 94L74 97L95 127L105 132L108 154L113 161L120 159L128 163L131 157L126 148L127 137L120 132L122 122L119 116L124 113L114 95L118 87L126 85L126 72L134 71ZM27 143L39 146L50 156L57 155L55 150L40 143L39 138L26 130L22 137L27 143ZM87 160L84 161L94 168L92 161L87 160Z","Kalimantan Tengah":"M678 389L689 392L708 385L714 390L721 382L726 391L724 411L727 413L745 403L758 409L778 396L775 394L779 388L792 401L803 396L805 409L823 403L836 409L847 381L854 377L862 365L877 355L883 346L884 343L878 339L881 324L898 315L901 306L898 308L889 296L881 296L877 293L881 283L877 282L875 274L878 262L872 262L864 270L860 259L852 255L860 244L870 242L864 226L850 228L837 235L830 234L826 228L814 229L801 244L790 247L796 261L787 273L787 280L783 278L758 288L747 290L743 285L741 290L737 289L718 300L714 311L699 322L685 328L691 333L688 341L694 345L691 355L695 360L697 375L678 389Z","Papua Pegunungan":"M1865 459L1872 458L1877 464L1882 462L1886 468L1893 467L1894 463L1905 463L1914 470L1919 465L1915 476L1955 479L1952 485L1948 484L1953 486L1955 480L1957 484L1961 483L1958 479L1966 479L1972 486L1999 492L1999 434L1984 432L1986 435L1981 438L1974 430L1973 423L1979 425L1979 431L1989 431L1992 427L1986 428L1986 424L1970 422L1967 418L1956 420L1945 411L1938 421L1933 409L1918 408L1915 401L1906 408L1908 400L1901 397L1897 403L1894 399L1894 387L1891 386L1884 387L1879 391L1874 389L1871 415L1880 417L1880 423L1884 425L1868 428L1865 441L1857 438L1857 442L1862 442L1863 445L1867 442L1861 455L1865 459Z","Kep. Bangka Belitung":"M445 351L452 349L462 353L463 361L469 366L469 381L490 388L494 394L504 393L504 389L497 386L503 374L508 370L485 364L474 328L467 324L459 325L463 337L457 334L459 330L454 325L445 328L445 337L433 346L441 352L445 351ZM544 398L552 396L552 392L558 401L562 400L572 384L571 378L558 370L544 370L538 386L541 386L541 399L544 398Z","Sumatera Selatan":"M300 379L309 391L318 393L319 401L340 405L340 412L337 416L332 412L331 420L325 424L341 434L337 437L344 444L360 447L358 455L362 458L368 456L370 464L375 467L378 473L399 471L397 462L401 448L429 440L442 421L451 426L456 437L464 440L470 425L464 417L468 406L476 400L474 389L464 386L462 376L455 372L455 363L430 362L424 358L415 361L424 350L420 346L406 344L405 340L407 333L402 329L366 339L363 344L365 347L361 361L351 351L350 359L334 360L331 370L322 375L309 373L300 379Z","Banten":"M503 524L501 521L493 522L487 519L479 521L472 515L466 524L462 543L456 541L448 556L444 549L438 553L440 557L451 558L471 556L489 563L495 554L490 550L490 535L506 534L502 528L503 524Z","Sulawesi Utara":"M1234 244L1280 237L1285 223L1296 216L1304 198L1311 194L1308 184L1300 182L1292 189L1293 194L1280 199L1282 206L1274 207L1270 214L1254 222L1219 218L1225 223L1225 228L1237 233L1234 244ZM1375 83L1379 83L1384 71L1382 62L1377 60L1374 69L1379 74L1375 83ZM1323 107L1327 111L1330 108L1325 98L1319 95L1323 107Z","Kalimantan Utara":"M845 196L852 201L860 196L869 206L881 209L886 203L898 203L910 190L915 182L918 167L923 164L921 160L929 158L930 151L939 154L943 148L951 152L954 147L961 146L962 150L969 146L978 148L984 156L995 152L982 136L982 129L977 128L979 125L971 125L971 120L966 120L975 114L961 105L962 101L952 101L970 100L973 96L981 100L987 96L982 94L986 94L982 89L972 86L970 77L974 79L978 76L972 76L962 67L953 69L933 66L927 71L923 66L916 67L911 71L903 66L889 87L893 108L888 111L889 120L882 128L877 125L869 135L871 136L868 144L875 148L853 162L859 174L852 179L852 187L845 196ZM975 82L971 83L972 86L981 88L975 82Z","Kalimantan Timur":"M814 229L826 228L830 234L837 235L850 228L864 226L870 242L860 244L852 255L860 259L864 270L872 262L878 262L875 274L877 282L881 283L877 293L881 296L889 296L898 308L901 306L891 323L896 337L895 347L900 348L901 362L915 359L932 363L934 353L926 355L924 350L928 348L928 336L919 336L932 328L932 321L941 318L940 303L943 314L947 314L963 298L964 283L971 278L970 267L974 259L976 240L985 225L992 222L996 224L991 209L998 219L1011 223L1030 223L1038 215L991 178L988 170L982 169L982 163L996 162L1000 158L995 152L984 156L978 148L969 146L962 150L961 146L954 147L951 152L943 148L939 154L930 151L929 158L921 160L923 164L918 167L915 182L898 203L886 203L881 209L869 206L860 196L852 201L838 192L830 196L826 208L816 212L818 221L814 229Z","Jawa Tengah":"M594 593L603 596L615 594L646 603L651 593L658 594L666 587L668 597L680 600L679 609L683 616L685 617L688 610L695 610L697 604L703 602L698 594L696 575L710 580L710 575L717 570L715 560L720 553L711 547L707 551L697 549L692 539L686 538L677 540L666 562L660 562L654 557L645 561L625 555L616 558L607 557L605 553L595 554L592 569L583 571L583 576L588 579L594 593Z","Maluku Utara":"M1407 212L1416 222L1411 234L1420 244L1418 270L1426 274L1432 288L1450 297L1434 276L1427 258L1426 244L1428 238L1435 237L1470 248L1461 243L1461 234L1446 229L1440 224L1462 211L1463 189L1452 190L1439 198L1436 203L1440 207L1431 210L1427 222L1417 220L1417 213L1428 208L1432 201L1432 182L1425 177L1435 163L1431 162L1413 181L1406 204L1407 212ZM1276 347L1295 341L1314 341L1315 336L1311 333L1309 336L1307 332L1304 335L1287 330L1275 331L1272 341L1276 347ZM1408 332L1433 333L1439 330L1416 316L1407 321L1405 329L1408 332ZM1440 158L1445 169L1455 168L1462 149L1457 142L1440 158ZM1403 282L1409 286L1409 294L1416 290L1421 296L1427 292L1414 285L1418 278L1413 272L1408 276L1403 273L1403 282ZM1331 342L1359 338L1315 338L1319 343L1331 342ZM1348 364L1343 353L1344 347L1340 344L1339 355L1344 365L1348 364ZM1398 280L1401 271L1395 269L1393 279L1398 280Z","Kalimantan Barat":"M830 196L820 195L805 205L801 200L776 197L779 190L755 189L743 195L740 208L731 209L726 215L719 212L713 216L711 213L700 211L670 221L658 215L655 206L649 205L645 197L639 196L631 187L632 180L628 180L626 174L630 168L617 173L614 186L604 193L602 206L598 207L601 217L596 222L599 231L599 243L606 247L611 255L611 268L606 270L608 280L632 288L630 293L636 298L635 301L644 307L642 311L648 316L648 331L642 338L651 345L650 356L657 387L671 382L674 390L697 375L695 360L691 355L694 345L688 341L691 333L685 328L699 322L714 311L718 300L737 289L741 290L743 285L747 290L758 288L783 278L787 280L787 273L796 261L790 247L801 244L814 229L818 221L816 212L826 208L830 196ZM632 311L637 308L636 302L624 301L619 313L625 315L632 311ZM613 294L616 297L621 295L627 297L632 302L635 297L627 291L613 287L613 294Z","Jawa Barat":"M489 563L495 563L488 576L494 582L535 586L552 596L574 600L581 598L581 594L594 593L588 579L583 576L583 571L592 569L595 554L585 553L582 541L575 532L568 530L563 535L554 528L545 531L536 527L530 519L516 517L512 535L490 535L490 550L495 554L489 563Z"}};
+const $=s=>document.querySelector(s);
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
+  history.replaceState(null,'','#'+b.dataset.t);
+});
+const h=location.hash.slice(1); if(h){const b=document.querySelector(`nav button[data-t="${h}"]`); if(b) b.click();}
+
+$('#kpis').innerHTML=DATA.kpi.map((k,i)=>i==4
+  ?`<div class="card kpi"><div class="l">${k.l}</div><div class="gw"><canvas id="cGauge"></canvas><div class="n">${k.n}</div></div><div class="s">${k.s}</div></div>`
+  :`<div class="card kpi"><div class="n">${k.n}</div><div class="l">${k.l}</div><div class="s">${k.s}</div>${i==3?'<div class="spark"><canvas id="cSpark"></canvas></div>':i<3?`<div class="bar"><i style="width:${[99,61,97][i]}%"></i></div>`:''}</div>`).join('');
+$('#insights').innerHTML=DATA.insights.map((x,i)=>`<div class="card ins"><h3><span class="num">${String(i+1).padStart(2,"0")}</span>${x[0]}</h3><p style="margin:6px 0 0">${x[1]}</p></div>`).join('');
+$('#recs').innerHTML=DATA.recs.map(x=>`<div class="card rec"><h3>${x[0]}</h3><p style="margin:6px 0 0">${x[1]}</p></div>`).join('');
+$('#sources').innerHTML=DATA.sources.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a></li>`).join('');
+
+const initCharts=()=>{if(window.Chart){
+  Chart.defaults.font.family="'Poppins',sans-serif";Chart.defaults.color='#8b88a8';Chart.defaults.font.size=11;Chart.defaults.plugins.legend.labels.boxWidth=12;Chart.defaults.plugins.legend.labels.boxHeight=12;Chart.defaults.plugins.legend.labels.padding=12;Chart.defaults.borderColor='#ebe9f7';
+  const fmt=(v,d=0)=>v.toLocaleString('id-ID',{maximumFractionDigits:d});
+  const D=DATA.D, P=D.prov;
+  const wrap=(t,n=17)=>{const out=[];let cur='';String(t).split(' ').forEach(w=>{if(cur&&(cur+' '+w).length>n){out.push(cur);cur=w}else cur=(cur?cur+' ':'')+w});if(cur)out.push(cur);return out};
+  function wrapT(v){return wrap(this.getLabelForValue(v))}
+  new Chart($('#cTren'),{data:{labels:DATA.tren.label,datasets:[
+    {type:'bar',label:'Usaha e-commerce (juta)',data:DATA.tren.usaha,backgroundColor:'#6d5dd3',borderRadius:6,yAxisID:'y'},
+    {type:'line',label:'Akses internet (%)',data:DATA.tren.inet,borderColor:'#e8489a',backgroundColor:'#e8489a',tension:.35,borderWidth:3,pointRadius:4,yAxisID:'y1'}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,title:{display:true,text:'juta usaha'}},y1:{position:'right',min:0,max:100,grid:{display:false},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+  const pu=[...D.pulau].sort((a,b)=>b.growth-a.growth);
+  new Chart($('#cGrowth'),{type:'bar',data:{labels:pu.map(x=>x.pulau),datasets:[{data:pu.map(x=>x.growth),backgroundColor:pu.map(x=>x.pulau=='Jawa'?'#d6d3ec':'#6d5dd3'),borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'+'+fmt(c.raw,1)+'%'}}},scales:{x:{ticks:{callback:v=>'+'+v+'%',maxRotation:0,maxTicksLimit:4}},y:{grid:{display:false},ticks:{callback:wrapT,autoSkip:false}}}}});
+  const pu2=[...D.pulau].sort((a,b)=>b.share_pend-a.share_pend);
+  new Chart($('#cPulau'),{type:'bar',data:{labels:pu2.map(x=>x.pulau),datasets:[{label:'Share penduduk',data:pu2.map(x=>x.share_pend),backgroundColor:'#d6d3ec',borderRadius:6},{label:'Share usaha e-commerce',data:pu2.map(x=>x.share_usaha),backgroundColor:'#6d5dd3',borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw,1)+'%'}}},scales:{x:{ticks:{callback:v=>v+'%'}},y:{grid:{display:false},ticks:{callback:wrapT,autoSkip:false}}}}});
+  const QC={Siap:'#6d5dd3',Potensial:'#a99cf0',Bergerak:'#f5a85b',Tertinggal:'#e8489a'};
+  let metric='per1000';
+  const F={pulau:'Semua',kuad:new Set(['Siap','Potensial','Bergerak','Tertinggal']),imin:0,imax:100,map:'kuadran'};
+  const passes=x=>(F.pulau=='Semua'||x.pulau==F.pulau)&&F.kuad.has(x.kuadran)&&x.internet_total>=F.imin&&x.internet_total<=F.imax;
+  const cProv=new Chart($('#cProv'),{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:[],borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,onClick:(e,el)=>{if(el.length){$('#fProv').value=cProv.data.labels[el[0].index];profil()}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>metric=='per1000'?fmt(c.raw,1)+' usaha per 1.000 penduduk':fmt(c.raw)+' usaha'}}},scales:{y:{grid:{display:false},ticks:{autoSkip:false,font:{size:11}}},x:{ticks:{callback:v=>metric=='per1000'?v:(v/1000)+'rb'}}}}});
+  let showAll=false;
+  const drawProv=()=>{const f=F.pulau;let rows=P.filter(passes).sort((a,b)=>b[metric]-a[metric]);
+    const canTrim=rows.length>10;const trimmed=canTrim&&!showAll;
+    if(trimmed)rows=[...rows.slice(0,6),...rows.slice(-4)];
+    $('#toggleAll').style.display=canTrim?'':'none';
+    $('#toggleAll').textContent=showAll?'Tampilkan ringkas':'Lihat semua '+P.filter(passes).length+' provinsi';
+    $('#provNote').textContent=!rows.length?'Tidak ada provinsi yang cocok dengan filter':trimmed?'6 tertinggi dan 4 terendah dari '+P.filter(passes).length+' provinsi':'';
+    cProv.data.labels=rows.map(x=>x.provinsi);cProv.data.datasets[0].data=rows.map(x=>x[metric]);cProv.data.datasets[0].backgroundColor=rows.map(x=>QC[x.kuadran]);
+    $('#provWrap').style.height=Math.max(220,rows.length*20+40)+'px';cProv.resize();cProv.update();
+    $('#provTitle').textContent=(metric=='per1000'?'Usaha e-commerce per 1.000 penduduk':'Jumlah usaha e-commerce')+', 2024'+(f=='Semua'?'':' · '+f);
+    $('#provAns').textContent=metric=='per1000'?'Dihitung per penduduk, peringkat berubah: DIY (71,7) jauh di atas Jawa Barat (14,1). Rata-rata nasional '+fmt(D.nat1000,1)+'. Warna batang = kuadran kesiapan.':'Jawa Barat, Jawa Timur, dan Jawa Tengah menampung 46% usaha e-commerce nasional.'};
+  document.querySelectorAll('#segMetric button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#segMetric button').forEach(x=>x.classList.toggle('on',x===b));metric=b.dataset.v;drawProv()});
+  $('#toggleAll').onclick=()=>{showAll=!showAll;drawProv()};
+  drawProv();
+  $('#fProv').innerHTML=[...P].sort((a,b)=>a.provinsi.localeCompare(b.provinsi)).map(x=>`<option>${x.provinsi}</option>`).join('');$('#fProv').value='Jawa Barat';
+  const rank=k=>[...P].sort((a,b)=>b[k]-a[k]).map(x=>x.provinsi);
+  window.profil=()=>{const x=P.find(p=>p.provinsi==$('#fProv').value);const r1=rank('per1000').indexOf(x.provinsi)+1,r2=rank('internet_total').indexOf(x.provinsi)+1;
+    $('#profilBody').innerHTML=`<div class="pf"><div><div class="sub" style="margin:0">Usaha e-commerce</div><div class="v">${fmt(x.jumlah_usaha)}</div></div><div><div class="sub" style="margin:0">Per 1.000 penduduk</div><div class="v">${fmt(x.per1000,1)}</div><div class="sub" style="margin:0">peringkat ${r1}/38</div></div><div><div class="sub" style="margin:0">Akses internet</div><div class="v">${fmt(x.internet_total,1)}%</div><div class="sub" style="margin:0">peringkat ${r2}/38</div></div><div><div class="sub" style="margin:0">Kota vs desa</div><div class="v" style="font-size:16px">${fmt(x.internet_kota,1)}% / ${x.internet_desa==null?'–':fmt(x.internet_desa,1)+'%'}</div></div></div><p style="margin:12px 0 0"><span class="badge" style="color:${QC[x.kuadran]}">Kuadran: ${x.kuadran}</span></p><p class="sub" style="margin:8px 0 0">${({Siap:'Internet tinggi dan UMKM digital tinggi: siap naik ke AI.',Potensial:'Internet tinggi tapi UMKM digital masih rendah: dorong go-online.',Bergerak:'UMKM digital tinggi tapi internet tertinggal: perkuat infrastruktur.',Tertinggal:'Keduanya rendah: prioritas internet dan literasi digital.'})[x.kuadran]}</p>`};
+  {const _p=window.profil;window.profil=()=>{_p();window.__mapSel&&window.__mapSel($('#fProv').value)}}
+  $('#fProv').onchange=profil;profil();
+  const cSc=new Chart($('#cScatter'),{type:'scatter',data:{datasets:Object.keys(QC).map(k=>({label:k,data:P.filter(x=>x.kuadran==k).map(x=>({x:x.internet_total,y:x.per1000,n:x.provinsi})),backgroundColor:QC[k],pointRadius:6,pointHoverRadius:8}))},
+    options:{maintainAspectRatio:false,onClick:(e,el)=>{if(el.length){const pt=e.chart.data.datasets[el[0].datasetIndex].data[el[0].index];$('#fProv').value=pt.n;profil();$('#profil').scrollIntoView({behavior:'smooth',block:'center'})}},plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.raw.n+': internet '+fmt(c.raw.x,1)+'%, '+fmt(c.raw.y,1)+' usaha/1.000'}}},
+      scales:{x:{title:{display:true,text:'% penduduk akses internet'},min:0,max:100},y:{type:'logarithmic',title:{display:true,text:'usaha / 1.000 (log)'}}}},
+    plugins:[{id:'med',afterDraw(c){const{ctx,scales:{x,y}}=c;ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='#8b88a8';const X=x.getPixelForValue(D.medInternet),Y=y.getPixelForValue(D.medPer1000);ctx.beginPath();ctx.moveTo(X,y.top);ctx.lineTo(X,y.bottom);ctx.moveTo(x.left,Y);ctx.lineTo(x.right,Y);ctx.stroke();ctx.restore()}}]});
+  $('#scAns').textContent=`Hubungannya positif dan cukup kuat (Spearman ρ = ${fmt(D.rho,2)}; Pearson r = ${fmt(D.r,2)}). Papua Pegunungan: internet 6,8%, hanya 0,3 usaha per 1.000 penduduk.`;
+  const qd={Siap:'Internet tinggi, UMKM digital tinggi → siap naik ke AI',Potensial:'Internet tinggi, UMKM digital masih rendah → dorong go-online',Bergerak:'UMKM digital tinggi, internet tertinggal → perkuat infrastruktur',Tertinggal:'Keduanya rendah → prioritas internet & literasi digital'};
+  {
+    const mw=MAPDATA.w,mh=MAPDATA.h,order=['Siap','Potensial','Bergerak','Tertinggal'];
+    const byName=Object.fromEntries(P.map(x=>[x.provinsi,x]));
+    const paths=Object.entries(MAPDATA.p).map(([n,d])=>`<path d="${d}" data-n="${n}" fill="${QC[byName[n].kuadran]}"></path>`).join('');
+    $('#kuadran').innerHTML=`<div class="mapbox"><svg viewBox="0 0 ${mw} ${mh}" role="img" aria-label="Peta kesiapan AI per provinsi">${paths}</svg><div class="maptip" id="maptip"></div></div>
+    <div class="legend" id="maplg"></div>`;
+    const svg=$('#kuadran svg'),tip=$('#maptip'),box=$('.mapbox');
+    svg.querySelectorAll('path').forEach(el=>{
+      const x=byName[el.dataset.n];
+      el.onmousemove=e=>{const r=box.getBoundingClientRect();tip.innerHTML=`<b>${x.provinsi}</b><span style="color:${QC[x.kuadran]}">● ${x.kuadran}</span><small>${fmt(x.per1000,1)} usaha/1.000 penduduk · internet ${fmt(x.internet_total,1)}%</small>`;tip.style.display='block';tip.style.left=Math.max(0,Math.min(e.clientX-r.left+14,r.width-200))+'px';tip.style.top=(e.clientY-r.top+14)+'px'};
+      el.onmouseleave=()=>{tip.style.display='none'};
+      el.onclick=()=>{$('#fProv').value=x.provinsi;profil();$('#profil').scrollIntoView({behavior:'smooth',block:'center'})};
+    });
+    window.__mapSel=n=>svg.querySelectorAll('path').forEach(el=>{const on=el.dataset.n===n;el.classList.toggle('sel',on);if(on)svg.appendChild(el)});
+    window.__mapSel($('#fProv').value);
+    /* ---- filter global + warna peta ---- */
+    const MET={kuadran:'Kuadran',per1000:'Usaha / 1.000 penduduk',jumlah_usaha:'Jumlah usaha',internet_total:'Akses internet'};
+    const LOGM={per1000:1,jumlah_usaha:1};
+    const ramp=t=>{const a=[227,222,251],b=[74,56,181];return 'rgb('+a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(',')+')'};
+    const tf=(k,v)=>LOGM[k]?Math.log10(v):v;
+    const colorOf=x=>{if(F.map=='kuadran')return QC[x.kuadran];const vs=P.map(y=>tf(F.map,y[F.map])),mn=Math.min(...vs),mx=Math.max(...vs);return ramp((tf(F.map,x[F.map])-mn)/(mx-mn))};
+    const renderLegend=()=>{
+      if(F.map=='kuadran'){$('#maplg').className='legend';$('#maplg').innerHTML=order.map(k=>{const L=P.filter(x=>x.kuadran==k),n=L.filter(passes).length;return `<div class="lg"><div class="lgh"><i style="background:${QC[k]}"></i><b>${k}</b><em>${n===L.length?L.length:n+' dari '+L.length} provinsi</em></div><p class="sub">${qd[k]}</p><details><summary>Lihat daftar</summary>${L.map(x=>`<span${passes(x)?'':' style="opacity:.35"'}>${x.provinsi}</span>`).join('')}</details></div>`}).join('')}
+      else{const vs=P.map(y=>y[F.map]),mn=Math.min(...vs),mx=Math.max(...vs),u=F.map=='internet_total'?'%':'';
+        $('#maplg').className='legend ramp';$('#maplg').innerHTML=`<div class="rl"><b>${MET[F.map]}</b><div class="rbar"></div><div class="rend"><span>${fmt(mn,1)}${u}</span><span>${fmt(mx,F.map=='jumlah_usaha'?0:1)}${u}</span></div>${LOGM[F.map]?'<small>Skala logaritmik, supaya provinsi kecil tetap terbedakan.</small>':''}</div>`}};
+    const applyF=()=>{
+      showAll=false;
+      svg.querySelectorAll('path').forEach(el=>{const x=byName[el.dataset.n];el.setAttribute('fill',colorOf(x));el.classList.toggle('dim',!passes(x))});
+      $('#kuadran').previousElementSibling.textContent=F.map=='kuadran'?'Dibagi berdasarkan median akses internet & usaha e-commerce per 1.000 penduduk. Arahkan kursor ke provinsi, klik untuk lihat profilnya.':'Provinsi diwarnai menurut '+MET[F.map].toLowerCase()+' (2024). Provinsi yang tidak lolos filter diredupkan. Klik provinsi untuk lihat profilnya.';
+      renderLegend();drawProv();
+      cSc.data.datasets.forEach((d,i)=>{const k=Object.keys(QC)[i];d.data=P.filter(x=>x.kuadran==k&&passes(x)).map(x=>({x:x.internet_total,y:x.per1000,n:x.provinsi}))});cSc.update();
+      const n=P.filter(passes).length;$('#fCount').innerHTML=`<b>${n}</b> dari ${P.length} provinsi`;
+      $('#fInetTxt').textContent=F.imin+'–'+F.imax+'%';
+      $('#fReset').style.visibility=(F.pulau=='Semua'&&F.kuad.size==4&&F.imin==0&&F.imax==100&&F.map=='kuadran')?'hidden':'visible'};
+    $('#fPulau').innerHTML=['Semua',...new Set(P.map(x=>x.pulau))].map(x=>`<option>${x}</option>`).join('');
+    $('#fKuad').innerHTML=order.map(k=>`<button type="button" class="chip on" data-k="${k}"><i style="background:${QC[k]}"></i>${k}</button>`).join('');
+    $('#segMap').innerHTML=Object.keys(MET).map(k=>`<button type="button"${k=='kuadran'?' class="on"':''} data-v="${k}">${MET[k]}</button>`).join('');
+    $('#fPulau').onchange=()=>{F.pulau=$('#fPulau').value;applyF()};
+    $('#fKuad').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const k=b.dataset.k;if(F.kuad.has(k))F.kuad.delete(k);else F.kuad.add(k);b.classList.toggle('on',F.kuad.has(k));applyF()};
+    $('#fImin').oninput=()=>{if(+$('#fImin').value>F.imax)$('#fImin').value=F.imax;F.imin=+$('#fImin').value;applyF()};
+    $('#fImax').oninput=()=>{if(+$('#fImax').value<F.imin)$('#fImax').value=F.imin;F.imax=+$('#fImax').value;applyF()};
+    $('#segMap').onclick=e=>{const b=e.target.closest('button');if(!b)return;F.map=b.dataset.v;document.querySelectorAll('#segMap button').forEach(x=>x.classList.toggle('on',x===b));applyF()};
+    $('#fReset').onclick=()=>{F.pulau='Semua';F.kuad=new Set(order);F.imin=0;F.imax=100;F.map='kuadran';$('#fPulau').value='Semua';$('#fImin').value=0;$('#fImax').value=100;document.querySelectorAll('#fKuad .chip').forEach(c=>c.classList.add('on'));document.querySelectorAll('#segMap button').forEach(x=>x.classList.toggle('on',x.dataset.v=='kuadran'));applyF()};
+    applyF();
+  }
+  new Chart($('#cKendala'),{type:'bar',data:{labels:DATA.kendala.label,datasets:[{data:DATA.kendala.val,backgroundColor:DATA.kendala.label.map(l=>/pemasaran|terampil/.test(l)?'#e8489a':'#d6d3ec'),borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw,2)+'%'}}},scales:{x:{ticks:{callback:v=>v+'%'}},y:{grid:{display:false},ticks:{callback:wrapT,autoSkip:false}}}}});
+  new Chart($('#cAI'),{type:'bar',data:{labels:DATA.ai.label,datasets:[{data:DATA.ai.val,backgroundColor:['#d6d3ec','#a99cf0','#e8489a'],borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw,2)+'% · '+DATA.ai.note[c.dataIndex]}}},scales:{x:{max:100,ticks:{callback:v=>v+'%'}},y:{grid:{display:false},ticks:{callback:wrapT,autoSkip:false}}}}});
+  /* sparkline: data riil tren usaha e-commerce 2020-2024 */
+  new Chart($('#cSpark'),{type:'line',data:{labels:DATA.tren.label,datasets:[{data:DATA.tren.usaha,borderColor:'#e8489a',borderWidth:2.5,pointRadius:0,tension:.4,fill:true,backgroundColor:'rgba(232,72,154,.14)'}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false,min:0}},layout:{padding:0}}});
+  /* gauge donut 14,5% */
+  new Chart($('#cGauge'),{type:'doughnut',data:{datasets:[{data:[14.5,85.5],backgroundColor:['#6d5dd3','rgba(169,156,240,.25)'],borderWidth:0}]},options:{maintainAspectRatio:false,cutout:'76%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+  if(window.__applyTheme)window.__applyTheme();
+  const refit=()=>Object.values(Chart.instances).forEach(c=>c.resize());
+  requestAnimationFrame(()=>requestAnimationFrame(refit));setTimeout(refit,400);
+}};
+(document.fonts&&document.fonts.load?Promise.race([Promise.all([document.fonts.load('400 12px Poppins'),document.fonts.load('500 12px Poppins')]),new Promise(r=>setTimeout(r,2000))]).then(initCharts,initCharts):initCharts());
+
+/* quiz: 1 pertanyaan per layar */
+let qi=0;const qans=Array(QUIZ.length).fill(null);let gaugeChart=null;
+const updateLive=()=>{
+  const pts=QUIZ.reduce((a,q,i)=>a+(qans[i]==null?0:q[1][qans[i]][1]),0),pct=Math.round(pts/24*100);
+  $('#liveArc').style.strokeDashoffset=(314.16*(1-pts/24)).toFixed(2)+'px';
+  $('#livePts').innerHTML=pts+'<small>dari 24 poin</small>';
+  const mk=$('#mk');mk.style.left=pct+'%';mk.dataset.v=pct;
+};
+$('#natBars').innerHTML=DATA.ai.label.map((l,i)=>`<div class="nat"><div class="t"><span>${l}</span><b>${DATA.ai.val[i].toLocaleString('id-ID',{maximumFractionDigits:2})}%</b></div><div class="bar2"><i style="width:${DATA.ai.val[i]}%;background:${['#d6d3ec','#a99cf0','#e8489a'][i]}"></i></div><small>${DATA.ai.note[i]}</small></div>`).join('');
+const renderQ=()=>{
+  updateLive();
+  const q=QUIZ[qi],pct=Math.round(qi/QUIZ.length*100);
+  $('#quiz').innerHTML=`<div class="prog"><span>Pertanyaan ${qi+1} dari ${QUIZ.length}</span><div class="meter"><div style="width:${pct}%"></div></div></div>
+  <p class="qq">${q[0]}</p>
+  <div class="opts stack1">${q[1].map((o,j)=>`<label><input type="radio" name="q" value="${j}"${qans[qi]===j?' checked':''}><span>${o[0]}</span></label>`).join('')}</div>
+  <div class="qnav"><button class="btn ghost" id="qBack"${qi==0?' disabled style="opacity:.4;cursor:default"':''}>← Kembali</button><span class="sub" style="margin:0;align-self:center">Pilih jawaban untuk lanjut</span></div>`;
+  document.querySelectorAll('#quiz input').forEach(inp=>inp.onchange=()=>{
+    qans[qi]=+inp.value;updateLive();
+    setTimeout(()=>{if(qi<QUIZ.length-1){qi++;renderQ()}else showResult()},220);
+  });
+  $('#qBack').onclick=()=>{if(qi>0){qi--;renderQ()}};
+};
+const showResult=()=>{
+  updateLive();
+  const s=QUIZ.reduce((a,q,i)=>a+q[1][qans[i]][1],0);
+  const pct=Math.round(s/24*100);
+  let lv,col,msg,step;
+  if(pct<40){lv='Pemula';col='#e8489a';msg='Fondasi digital usahamu perlu diperkuat dulu sebelum masuk ke AI.';step=['Daftar WhatsApp Business dan buat katalog produk','Mulai catat penjualan di Google Sheets atau aplikasi kasir gratis','Coba tanya 1 hal ke Meta AI di WhatsApp, misalnya ide nama promo']}
+  else if(pct<70){lv='Berkembang';col='#f5a85b';msg='Kamu sudah online, tinggal pakai AI untuk pekerjaan yang paling makan waktu.';step=['Pakai AI untuk bikin caption & deskripsi produk tiap minggu','Edit foto produk dengan fitur AI di Canva/CapCut','Simpan jawaban FAQ buatan AI sebagai balasan cepat WA']}
+  else{lv='Siap AI';col='#6d5dd3';msg='Kamu siap memakai AI lebih jauh, termasuk untuk analisis data usaha.';step=['Analisis data penjualan dengan Gemini di Google Sheets','Buat kalender konten bulanan dibantu AI','Ajari karyawan/UMKM sekitar, jadi mentor AI di komunitasmu']}
+  $('#quizCard').style.display='none';
+  const r=$('#hasil');r.style.display='block';
+  r.innerHTML=`<div class="resrow"><div class="gauge"><canvas id="cScore"></canvas><b>${pct}<small>dari 100</small></b></div>
+  <div><div class="sub" style="margin:0">Skor kesiapan AI</div><p style="margin:4px 0 8px"><span class="badge" style="color:${col}">${lv}</span></p><p style="margin:0 0 6px">${msg}</p>
+  <p class="sub">Sebagai gambaran: secara nasional baru sekitar 14,5% UMKM yang memakai AI dalam operasional bisnis (Google, 2026).</p></div></div>
+  <h3 style="margin-top:18px">3 langkah berikutnya</h3><ol>${step.map(x=>`<li>${x}</li>`).join('')}</ol>
+  <div class="row" style="margin-top:14px"><button class="btn" id="goRekom" style="flex:none">Lihat tools untuk jenis usahamu →</button><button class="btn ghost" id="redo" style="flex:none">Ulangi kuis</button></div>`;
+  if(window.Chart){
+    if(gaugeChart)gaugeChart.destroy();
+    const track=getComputedStyle(document.documentElement).getPropertyValue('--line').trim()||'#ebe9f7';
+    gaugeChart=new Chart($('#cScore'),{type:'doughnut',data:{datasets:[{data:[pct,100-pct],backgroundColor:[col,track],borderWidth:0,borderRadius:8}]},options:{maintainAspectRatio:false,cutout:'78%',animation:{duration:900},plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+  }
+  $('#goRekom').onclick=()=>document.querySelector('nav button[data-t=rekom]').click();
+  $('#redo').onclick=()=>{qans.fill(null);qi=0;r.style.display='none';$('#quizCard').style.display='';renderQ()};
+};
+renderQ();
+
+/* tools */
+const sektors=Object.keys(TOOLS);
+$('#sektor').innerHTML=sektors.map(k=>`<option>${k}</option>`).join('');
+$('#sektorChips').innerHTML=sektors.map((k,i)=>`<button type="button" class="chip${i==0?' on':''}" data-k="${k}">${k}</button>`).join('');
+const BAR=[['Kurang permodalan','#6d5dd3'],['Kendala pemasaran','#e8489a'],['Kurang tenaga terampil','#f5a85b']];
+const pctOf=n=>DATA.kendala.val[DATA.kendala.label.indexOf(n)].toFixed(1).replace('.',',');
+const barKey=c=>/hpp|belanja|catat|analisis|stok/i.test(c)?0:/balas|jadwal|editing|desain/i.test(c)?2:/foto|caption|promo|deskripsi|video|review|portofolio|brainstorm/i.test(c)?1:-1;
+const PK='umkm-progress';
+const getP=()=>{try{return JSON.parse(localStorage.getItem(PK))||{}}catch(e){return {}}};
+const renderTools=()=>{
+  const sk=$('#sektor').value,L=TOOLS[sk],P=getP(),D=P[sk]||{};
+  document.querySelectorAll('#sektorChips .chip').forEach(c=>c.classList.toggle('on',c.dataset.k===sk));
+  const total=L.length*3,done=Object.keys(D).filter(k=>D[k]).length;
+  const wdone=i=>[0,1,2].every(j=>D[i+'-'+j]);
+  const cur=L.findIndex((t,i)=>!wdone(i));
+  $('#pcount').innerHTML=`<b>${done}</b> dari ${total} langkah`;
+  $('#pbar').style.width=(done/total*100)+'%';
+  $('#weeks').innerHTML=L.map((t,i)=>{const k=barKey(t[0]),c=k>=0?BAR[k][1]:'#8b8aa3',fin=wdone(i);
+    return `<div class="wk${i===cur?' now':''}${fin?' fin':''}" style="--c:${c}"><div class="wh"><span>Minggu ${i+1}</span>${fin?'<em>Selesai</em>':i===cur?'<em class="nw">Sekarang</em>':''}</div><div class="wt">${t[0]}</div><div class="wl">${t[1]}</div>${k>=0?`<div class="bt3">${BAR[k][0]} ${pctOf(BAR[k][0])}%</div>`:'<div class="bt3">Etika &amp; hukum</div>'}<ul>${t[2].map((x,j)=>`<li><label><input type="checkbox" data-k="${i}-${j}"${D[i+'-'+j]?' checked':''}><span>${x}</span></label></li>`).join('')}</ul></div>`}).join('');
+  const all=done===total;$('#wdone').hidden=!all;
+  if(all)$('#wdone').innerHTML=`<b>Semua langkah selesai.</b> Sekarang hitung berapa jam yang bisa kamu hemat.<button type="button" class="pbtn" id="goHitung">Buka kalkulator &rarr;</button>`;
+  if(all)$('#goHitung').onclick=()=>document.querySelector('nav button[data-t=hitung]').click()};
+document.querySelectorAll('#sektorChips .chip').forEach(c=>c.onclick=()=>{$('#sektor').value=c.dataset.k;renderTools()});
+$('#weeks').addEventListener('change',e=>{const k=e.target.dataset.k;if(!k)return;const sk=$('#sektor').value,P=getP();P[sk]=P[sk]||{};if(e.target.checked)P[sk][k]=true;else delete P[sk][k];try{localStorage.setItem(PK,JSON.stringify(P))}catch(x){}renderTools()});
+renderTools();
+
+/* calculator */
+$('#calc').innerHTML=TASKS.map((t,i)=>`<div class="ctask"><div class="cth"><b>${t[0]}</b><span class="cthv"><span id="sv${i}">0</span> jam hemat</span></div>
+<div class="crow"><label>Waktu sekarang<div class="inpw"><input type="number" min="0" id="j${i}" value="${t[1]}"><em>jam/bulan</em></div></label>
+<label>Perkiraan hemat dengan AI<div class="rng"><input type="range" min="0" max="90" step="5" id="p${i}" value="${t[2]}"><output id="pv${i}">${t[2]}%</output></div></label></div></div>`).join('');
+const calc=()=>{
+  const f=v=>v.toLocaleString('id-ID',{maximumFractionDigits:1});
+  let tot=0,cur=0;
+  const rows=TASKS.map((t,i)=>{const j=+$('#j'+i).value||0,pc=Math.min(+$('#p'+i).value||0,90),sv=j*pc/100;tot+=sv;cur+=j;$('#pv'+i).textContent=pc+'%';$('#sv'+i).textContent=f(sv);return {n:t[0],sv}});
+  $('#totJam').textContent=f(tot);
+  $('#totPct').textContent=cur?Math.round(tot/cur*100)+'% dari '+f(cur)+' jam kerja rutin per bulan':'Isi jam kerja rutinmu dulu';
+  $('#calcArc').style.strokeDashoffset=(314.16*(1-(cur?tot/cur:0))).toFixed(2)+'px';
+  $('#totNote').textContent='Setara ±'+Math.round(tot/8)+' hari kerja yang bisa dipakai untuk melayani pelanggan atau mengembangkan produk.';
+  const mx=Math.max(...rows.map(r=>r.sv),0.0001);
+  $('#brk').innerHTML=rows.map(r=>`<div class="nat"><div class="t"><span>${r.n}</span><b>${f(r.sv)} jam</b></div><div class="bar2"><i style="width:${r.sv/mx*100}%;background:linear-gradient(90deg,#6d5dd3,#e8489a)"></i></div></div>`).join('');
+};
+$('#calc').addEventListener('input',calc);calc();
+
+/* header: judul per tab + cari provinsi */
+(function(){
+  const T={
+    kondisi:['UMKM Indonesia di Era AI:<br><span class="gr1">Siapa yang Siap</span>, <span class="gr2">Siapa yang Tertinggal?</span>',''],
+    cek:['Cek <span class="gr1">Kesiapan AI</span> Usahamu','Jawab 8 pertanyaan singkat, lalu dapatkan skor dan langkah pertama yang bisa langsung dicoba.'],
+    rekom:['Rekomendasi <span class="gr1">AI</span> per <span class="gr2">Jenis Usaha</span>','Tools yang punya versi gratis dan bisa dipakai dari HP, lengkap dengan langkah mulainya.'],
+    hitung:['Kalkulator <span class="gr2">Hemat Waktu</span>','Perkirakan berapa jam per bulan yang bisa kamu hemat dengan bantuan AI.']
+  };
+  const set=id=>{const t=T[id]||T.kondisi;$('#pageTitle').innerHTML=t[0];$('#pageSub').textContent=t[1];const b=document.querySelector('nav button[data-t='+id+']');if(b&&b.scrollIntoView)b.scrollIntoView({inline:'center',block:'nearest'})};
+  document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>set(b.dataset.t)));
+  const cur=document.querySelector('section.on');if(cur)set(cur.id);
+})();
+/* sidebar buka/tutup */
+(function(){
+  const app=document.querySelector('.app'),btn=$('#sbToggle');
+  document.querySelectorAll('nav button').forEach(b=>{const t=[...b.childNodes].find(n=>n.nodeType===3);b.title=t?t.textContent.trim():''});
+  const set=c=>{app.classList.toggle('collapsed',c);btn.setAttribute('aria-expanded',String(!c));try{localStorage.setItem('umkm-sidebar',c?'closed':'open')}catch(e){}};
+  app.classList.toggle('collapsed',(()=>{try{return localStorage.getItem('umkm-sidebar')==='closed'}catch(e){return false}})());
+  btn.setAttribute('aria-expanded',String(!app.classList.contains('collapsed')));
+  btn.onclick=()=>set(!app.classList.contains('collapsed'));
+})();
+/* theme */
+(function(){
+  const t=$('#theme');
+  const apply=d=>{
+    document.documentElement.dataset.theme=d?'dark':'';
+    if(window.Chart){
+      const tc=d?'#9c99c2':'#8b88a8',gc=d?'#322e58':'#ebe9f7';
+      Chart.defaults.color=tc;Chart.defaults.borderColor=gc;
+      Object.values(Chart.instances).forEach(c=>{
+        Object.values(c.options.scales||{}).forEach(sc=>{
+          if(sc.grid&&sc.grid.display!==false)sc.grid.color=gc;
+          if(sc.ticks)sc.ticks.color=tc;
+          if(sc.title)sc.title.color=tc;
+        });
+        if(c.options.plugins&&c.options.plugins.legend&&c.options.plugins.legend.labels)c.options.plugins.legend.labels.color=tc;
+        c.update();
+      });
+    }
+  };
+  window.__applyTheme=()=>apply(t.checked);
+  const saved=localStorage.getItem('umkm-theme')==='dark';
+  t.checked=saved;apply(saved);
+  t.onchange=()=>{localStorage.setItem('umkm-theme',t.checked?'dark':'light');apply(t.checked)};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+tahun,provinsi,internet_kota,internet_desa,internet_total
+2023,Aceh,69.43,53.93,59.3
+2023,Sumatera Utara,74.68,64.48,70.29
+2023,Sumatera Barat,74.35,62.85,68.64
+2023,Riau,80.66,67.89,73.02
+2023,Jambi,75.59,64.42,68.14
+2023,Sumatera Selatan,77.89,59.79,66.66
+2023,Bengkulu,79.94,59.34,66.25
+2023,Lampung,76.8,67.63,70.68
+2023,Kep. Bangka Belitung,77.12,65.04,72.03
+2023,Kepulauan Riau,89.85,63.07,86.71
+2023,DKI Jakarta,86.5,63.07,86.5
+2023,Jawa Barat,75.66,60.52,72.54
+2023,Jawa Tengah,73.91,65.61,70.0
+2023,D.I. Yogyakarta,82.16,68.03,78.61
+2023,Jawa Timur,72.67,57.89,66.17
+2023,Banten,76.54,54.93,71.73
+2023,Bali,78.06,61.16,73.34
+2023,Nusa Tenggara Barat,69.01,57.03,63.2
+2023,Nusa Tenggara Timur,74.42,42.71,51.06
+2023,Kalimantan Barat,78.94,58.87,66.39
+2023,Kalimantan Tengah,81.08,64.0,71.34
+2023,Kalimantan Selatan,78.81,65.56,72.13
+2023,Kalimantan Timur,84.44,71.55,80.46
+2023,Kalimantan Utara,82.05,68.02,77.03
+2023,Sulawesi Utara,71.91,56.13,64.81
+2023,Sulawesi Tengah,73.81,50.68,58.22
+2023,Sulawesi Selatan,76.57,58.57,66.95
+2023,Sulawesi Tenggara,75.96,59.47,65.83
+2023,Gorontalo,72.36,56.82,63.77
+2023,Sulawesi Barat,71.58,56.92,59.89
+2023,Maluku,74.92,46.04,58.54
+2023,Maluku Utara,74.8,44.71,53.48
+2023,Papua Barat,74.29,49.82,60.01
+2023,Papua Barat Daya,74.29,49.82,60.01
+2023,Papua,72.07,12.74,29.87
+2023,Papua Selatan,72.07,12.74,29.87
+2023,Indonesia,76.3,59.33,69.21
+2022,Aceh,62.74,48.42,52.99
+2022,Sumatera Utara,70.43,59.55,65.68
+2022,Sumatera Barat,70.14,57.82,63.13
+2022,Riau,74.48,66.41,68.85
+2022,Jambi,73.51,59.88,64.06
+2022,Sumatera Selatan,73.29,56.84,62.57
+2022,Bengkulu,76.77,56.55,63.14
+2022,Lampung,71.44,61.96,65.21
+2022,Kep. Bangka Belitung,73.88,62.01,68.7
+2022,Kepulauan Riau,85.0,94.95,82.4
+2022,DKI Jakarta,84.65,0.0,84.65
+2022,Jawa Barat,74.68,56.73,71.12
+2022,Jawa Tengah,71.84,62.62,67.73
+2022,D.I. Yogyakarta,79.37,63.71,75.38
+2022,Jawa Timur,70.78,55.68,64.28
+2022,Banten,76.44,48.01,70.73
+2022,Bali,75.38,57.79,70.59
+2022,Nusa Tenggara Barat,65.01,53.84,59.39
+2022,Nusa Tenggara Timur,73.58,38.49,47.39
+2022,Kalimantan Barat,77.72,53.14,62.08
+2022,Kalimantan Tengah,77.3,57.58,65.79
+2022,Kalimantan Selatan,77.36,63.32,70.26
+2022,Kalimantan Timur,84.57,72.37,80.56
+2022,Kalimantan Utara,83.64,64.15,77.43
+2022,Sulawesi Utara,69.2,53.55,61.63
+2022,Sulawesi Tengah,67.96,48.4,54.49
+2022,Sulawesi Selatan,74.27,55.35,64.14
+2022,Sulawesi Tenggara,71.91,56.82,61.88
+2022,Gorontalo,68.45,54.17,60.31
+2022,Sulawesi Barat,67.5,53.13,55.38
+2022,Maluku,71.99,44.72,55.22
+2022,Maluku Utara,71.15,42.3,50.2
+2022,Papua Barat,74.59,49.77,58.27
+2022,Papua,66.43,10.69,26.32
+2022,Indonesia,74.16,55.92,66.48
+2021,Aceh,61.92,42.86,49.23
+2021,Sumatera Utara,67.04,49.3,59.17
+2021,Sumatera Barat,68.29,48.27,58.14
+2021,Riau,73.13,55.92,62.83
+2021,Jambi,70.08,49.22,56.07
+2021,Sumatera Selatan,72.17,47.67,56.89
+2021,Bengkulu,73.24,45.9,54.97
+2021,Lampung,69.1,55.65,59.94
+2021,Kep. Bangka Belitung,68.06,51.66,60.94
+2021,Kepulauan Riau,83.39,52.35,81.03
+2021,Jawa Barat,72.88,52.36,68.37
+2021,Jawa Tengah,67.95,56.04,62.2
+2021,D.I. Yogyakarta,78.78,60.35,74.0
+2021,Jawa Timur,67.14,49.93,59.34
+2021,Banten,75.25,46.67,67.14
+2021,Bali,73.61,53.79,67.75
+2021,Nusa Tenggara Barat,61.28,44.68,52.96
+2021,Nusa Tenggara Timur,69.49,34.36,43.14
+2021,Kalimantan Barat,71.65,45.28,54.8
+2021,Kalimantan Tengah,72.55,51.06,59.97
+2021,Kalimantan Selatan,76.2,56.47,66.01
+2021,Kalimantan Timur,79.44,63.51,74.47
+2021,Kalimantan Utara,78.68,53.94,69.26
+2021,Sulawesi Utara,67.98,49.99,59.73
+2021,Sulawesi Tengah,67.25,42.43,50.15
+2021,Sulawesi Selatan,71.49,50.08,59.69
+2021,Sulawesi Tenggara,70.09,49.96,57.21
+2021,Gorontalo,66.0,48.26,56.03
+2021,Sulawesi Barat,61.37,45.5,48.73
+2021,Maluku,69.22,34.16,49.74
+2021,Maluku Utara,68.86,32.12,42.68
+2021,Papua Barat,73.31,40.43,54.61
+2021,Papua,66.87,10.27,26.49
+2021,Indonesia,71.81,49.3,62.1
+2024,Aceh,70.8,58.66,62.93
+2024,Sumatera Utara,77.43,69.69,74.15
+2024,Sumatera Barat,79.16,69.78,74.59
+2024,Riau,84.3,73.2,77.68
+2024,Jambi,78.17,68.55,71.76
+2024,Sumatera Selatan,80.34,64.5,70.54
+2024,Bengkulu,81.96,65.01,70.72
+2024,Lampung,77.24,71.37,73.37
+2024,Kep. Bangka Belitung,80.08,70.41,76.06
+2024,Kepulauan Riau,91.52,69.66,89.26
+2024,Jawa Barat,79.42,65.35,76.62
+2024,Jawa Tengah,76.08,69.78,73.15
+2024,D.I. Yogyakarta,83.98,68.24,80.1
+2024,Jawa Timur,75.22,61.69,69.36
+2024,Banten,79.82,56.77,75.17
+2024,Bali,81.73,66.39,77.56
+2024,Nusa Tenggara Barat,72.88,63.76,68.52
+2024,Nusa Tenggara Timur,76.88,46.73,54.84
+2024,Kalimantan Barat,83.78,64.02,71.57
+2024,Kalimantan Tengah,84.29,68.19,75.23
+2024,Kalimantan Selatan,80.63,68.96,74.82
+2024,Kalimantan Timur,87.33,77.91,84.44
+2024,Kalimantan Utara,81.92,69.24,77.44
+2024,Sulawesi Utara,75.08,60.13,68.44
+2024,Sulawesi Tengah,75.99,55.7,62.44
+2024,Sulawesi Selatan,78.63,62.43,70.1
+2024,Sulawesi Tenggara,78.79,64.96,70.36
+2024,Gorontalo,74.03,59.04,65.92
+2024,Sulawesi Barat,77.28,63.9,66.61
+2024,Maluku,74.74,48.44,59.96
+2024,Maluku Utara,80.1,50.46,59.17
+2024,Papua Barat,79.14,55.75,62.96
+2024,Papua Barat Daya,77.98,53.4,65.75
+2024,Papua,77.56,39.32,62.24
+2024,Papua Selatan,74.09,33.58,48.44
+2024,Papua Tengah,82.62,12.3,28.71
+2024,Papua Pegunungan,41.86,4.15,6.76
+2024,Indonesia,79.13,63.71,72.78
+2020,Aceh,57.41,35.41,42.56
+2020,Sumatera Utara,56.61,37.75,48.05
+2020,Sumatera Barat,56.95,36.89,46.35
+2020,Riau,66.46,43.53,52.78
+2020,Jambi,61.64,41.34,47.93
+2020,Sumatera Selatan,61.29,36.86,46.0
+2020,Bengkulu,65.78,35.14,45.32
+2020,Lampung,59.91,41.28,47.06
+2020,Kep. Bangka Belitung,60.4,41.13,51.78
+2020,Kepulauan Riau,70.32,44.73,67.72
+2020,Jawa Barat,64.76,44.02,59.9
+2020,Jawa Tengah,61.13,47.97,54.72
+2020,D.I. Yogyakarta,74.28,53.61,68.68
+2020,Jawa Timur,62.07,43.65,53.49
+2020,Banten,66.95,37.48,58.63
+2020,Bali,68.69,44.22,61.06
+2020,Nusa Tenggara Barat,52.46,36.57,44.28
+2020,Nusa Tenggara Timur,59.88,23.17,32.04
+2020,Kalimantan Barat,65.5,34.14,45.16
+2020,Kalimantan Tengah,66.22,41.04,51.18
+2020,Kalimantan Selatan,67.19,44.41,55.2
+2020,Kalimantan Timur,72.52,53.24,66.24
+2020,Kalimantan Utara,68.06,48.89,60.52
+2020,Sulawesi Utara,61.38,41.3,51.8
+2020,Sulawesi Tengah,65.88,32.95,42.82
+2020,Sulawesi Selatan,62.89,39.39,49.59
+2020,Sulawesi Tenggara,62.42,39.1,48.31
+2020,Gorontalo,56.96,39.55,46.92
+2020,Sulawesi Barat,50.41,34.55,38.29
+2020,Maluku,59.37,23.61,39.48
+2020,Maluku Utara,61.81,25.21,35.8
+2020,Papua Barat,65.61,38.92,50.21
+2020,Papua,60.64,11.45,25.52
+2020,Indonesia,64.25,40.32,53.73
+2020,DKI Jakarta,77.61,,77.61
+2021,DKI Jakarta,85.55,,85.55
+2024,DKI Jakarta,87.84,,87.84
