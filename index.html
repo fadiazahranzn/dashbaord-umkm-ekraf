@@ -306,6 +306,20 @@ details.src[open] summary{margin-bottom:10px}
 .mapbox svg:hover path{opacity:.5}
 .mapbox svg path:hover{opacity:1}
 .mapbox path.sel{stroke:var(--ink);stroke-width:5}
+.mapbtn{display:none;order:-1;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:12px;border:1px solid var(--line,#e4e1f3);background:var(--card);color:var(--ink);font:600 13px Poppins,sans-serif;cursor:pointer}
+.mapmodal{position:fixed;inset:0;z-index:200;background:var(--card);display:none;flex-direction:column}
+.mapmodal.on{display:flex}
+.mm-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line,#e4e1f3);font-weight:600;font-size:14px}
+.mm-h button{border:0;background:none;color:var(--ink);font-size:26px;line-height:1;padding:0 6px;cursor:pointer}
+.mm-b{flex:1;overflow:auto;touch-action:pan-x pan-y pinch-zoom}
+.mm-b svg{width:900px;max-width:none;height:auto;display:block;margin:auto 0}
+.mm-b{display:flex}
+.mm-b path{stroke:var(--card);stroke-width:2.2;stroke-linejoin:round}
+.mm-b path.dim{opacity:.13;pointer-events:none}
+.mm-b path.sel{stroke:var(--ink);stroke-width:5}
+.mm-s{padding:14px 16px 18px;border-top:1px solid var(--line,#e4e1f3);font-size:13px;min-height:92px}
+.mm-s b{font-size:15px;display:block}.mm-s small{display:block;color:var(--mute);margin:3px 0 10px}
+.mm-s button{border:0;border-radius:10px;padding:9px 14px;background:var(--pri,#6c5ce7);color:#fff;font:600 13px Poppins,sans-serif;cursor:pointer}
 .maptip{display:none;position:absolute;pointer-events:none;background:var(--ink);color:var(--card);border-radius:10px;padding:8px 11px;font-size:12px;line-height:1.4;z-index:5;max-width:210px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
 .maptip b{display:block;font-size:13px}.maptip span{font-weight:600}.maptip small{display:block;opacity:.8;margin-top:2px}
 .legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
@@ -401,6 +415,8 @@ details.src[open] summary{margin-bottom:10px}
   .dual{width:100%}
   .fbar .fend{margin-left:0;width:100%;justify-content:space-between}
   .legend{grid-template-columns:1fr}
+  .mapbox{order:-2}
+  .mapbtn{display:flex}
   .card{padding:16px}
   .tool,.q-main{padding:16px}
 }
@@ -733,13 +749,30 @@ const initCharts=()=>{if(window.Chart){
     const byName=Object.fromEntries(P.map(x=>[x.provinsi,x]));
     const paths=Object.entries(MAPDATA.p).map(([n,d])=>`<path d="${d}" data-n="${n}" fill="${QC[byName[n].kuadran]}"></path>`).join('');
     $('#kuadran').innerHTML=`<div class="mapbox"><svg viewBox="0 0 ${mw} ${mh}" role="img" aria-label="Peta kesiapan AI per provinsi">${paths}</svg><div class="maptip" id="maptip"></div></div>
+    <button type="button" class="mapbtn" id="mapOpen">⤢ Buka peta layar penuh</button>
     <div class="legend" id="maplg"></div>`;
+    document.body.insertAdjacentHTML('beforeend','<div class="mapmodal" id="mapModal" role="dialog" aria-label="Peta layar penuh"><div class="mm-h"><span>Peta kesiapan AI</span><button type="button" id="mmClose" aria-label="Tutup">×</button></div><div class="mm-b" id="mmBody"></div><div class="mm-s" id="mmInfo"></div></div>');
+    const mobile=()=>matchMedia('(max-width:860px)').matches;
+    const openMap=()=>{
+      const mb=$('#mmBody'),info=$('#mmInfo');mb.innerHTML='';
+      const c=$('#kuadran svg').cloneNode(true);c.removeAttribute('role');mb.appendChild(c);
+      info.innerHTML='<small>Ketuk provinsi untuk melihat ringkasannya. Cubit atau geser untuk memperbesar.</small>';
+      c.querySelectorAll('path').forEach(el=>{const x=byName[el.dataset.n];el.onclick=()=>{
+        c.querySelectorAll('path').forEach(p=>p.classList.toggle('sel',p===el));c.appendChild(el);
+        info.innerHTML=`<b>${x.provinsi}</b><span style="color:${QC[x.kuadran]}">● ${x.kuadran}</span><small>${fmt(x.per1000,1)} usaha/1.000 penduduk · internet ${fmt(x.internet_total,1)}%</small><button type="button" id="mmGo">Lihat profil lengkap</button>`;
+        $('#mmGo').onclick=()=>{closeMap();$('#fProv').value=x.provinsi;profil();$('#profil').scrollIntoView({behavior:'smooth',block:'center'})}}});
+      $('#mapModal').classList.add('on');document.body.style.overflow='hidden';
+      mb.scrollLeft=(mb.scrollWidth-mb.clientWidth)/2;
+    };
+    const closeMap=()=>{$('#mapModal').classList.remove('on');document.body.style.overflow=''};
+    $('#mapOpen').onclick=openMap;$('#mmClose').onclick=closeMap;
+    document.addEventListener('keydown',e=>{if(e.key=='Escape')closeMap()});
     const svg=$('#kuadran svg'),tip=$('#maptip'),box=$('.mapbox');
     svg.querySelectorAll('path').forEach(el=>{
       const x=byName[el.dataset.n];
       el.onmousemove=e=>{const r=box.getBoundingClientRect();tip.innerHTML=`<b>${x.provinsi}</b><span style="color:${QC[x.kuadran]}">● ${x.kuadran}</span><small>${fmt(x.per1000,1)} usaha/1.000 penduduk · internet ${fmt(x.internet_total,1)}%</small>`;tip.style.display='block';tip.style.left=Math.max(0,Math.min(e.clientX-r.left+14,r.width-200))+'px';tip.style.top=(e.clientY-r.top+14)+'px'};
       el.onmouseleave=()=>{tip.style.display='none'};
-      el.onclick=()=>{$('#fProv').value=x.provinsi;profil();$('#profil').scrollIntoView({behavior:'smooth',block:'center'})};
+      el.onclick=()=>{if(mobile())return openMap();$('#fProv').value=x.provinsi;profil();$('#profil').scrollIntoView({behavior:'smooth',block:'center'})};
     });
     window.__mapSel=n=>svg.querySelectorAll('path').forEach(el=>{const on=el.dataset.n===n;el.classList.toggle('sel',on);if(on)svg.appendChild(el)});
     window.__mapSel($('#fProv').value);
